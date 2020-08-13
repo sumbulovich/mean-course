@@ -25,7 +25,7 @@ export class PostService {
       .pipe( map( ( responseData ) => {
         return responseData.posts.map( ( postDb: any ) => {
           if ( postDb.imagePath ) {
-            postDb.imagePath = postDb.imagePath.replace('images/', 'images/thumbnails/');
+            postDb.imagePath = postDb.imagePath.replace('posts/', 'posts/thumbnails/');
           }
           return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
         } );  // Convert DB content to Post model

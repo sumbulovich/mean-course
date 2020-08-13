@@ -13,7 +13,7 @@ export class ImageService {
 
   compressImage( file: File, imageSettings: ImageSettings ): Observable<File> {
     return this.ng2ImgMaxService.resizeImage( file, imageSettings.maxWidth, imageSettings.maxHeight ).pipe(
-      take( 1 ), // Take the irst emission and unsubscribe
+      take( 1 ), // Take the first emission and unsubscribe
       flatMap( ( resizedFile: File ) =>
         iif( () => !!imageSettings.maxSizeInMB,
           this.ng2ImgMaxService.compressImage( resizedFile, imageSettings.maxSizeInMB, false ),

@@ -1,8 +1,9 @@
 const express = require( 'express' ); // Import Express Package
 const bodyParser = require( 'body-parser' ); // Import Body Parser Package
 const mongoose = require( 'mongoose' ); // Import Mongoose Package
-const path = require( 'path' );
+const path = require( 'path' ); // Import path of Node.js
 const postRoutes = require( './routes/post' ); // Import Post routes
+const constants = require( './constants' ); // Import Post routes
 
 const app = express(); // Create Express app
 
@@ -41,8 +42,14 @@ app.use( bodyParser.urlencoded( { extended: false } ) );
 /*
  * This middleware makes accecible /images path linking it to /image folder accesible
  */
-app.use( '/images', express.static( path.join( 'backend/images/posts' ) ) );
-app.use( '/images/thumbnails', express.static( path.join( 'backend/images/posts/thumbnails' ) ) );
+app.use(
+  path.join( '/', constants.PATHS.IMAGES, constants.PATHS.POSTS ),
+  express.static( path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS ) )
+);
+app.use(
+  path.join( '/', constants.PATHS.IMAGES, constants.PATHS.POSTS, constants.PATHS.THUMBNAILS ),
+  express.static( path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS, constants.PATHS.THUMBNAILS ) )
+);
 /*
  * This middleware defines the Headers of the server
  */

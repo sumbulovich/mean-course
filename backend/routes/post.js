@@ -1,7 +1,9 @@
 const express = require( 'express' ); // Import Express package
 const multer = require( 'multer' ); // Import Multer package
+const path = require( 'path' ); // Import path of Node.js
 const fs = require( 'fs' ) // Import File System of Node.js
 const Post = require( '../models/post' ); // Import Mongoose Post model
+const constants = require( '../constants' ); // Import Post routes
 const util = require('util'); // console.log(util.inspect(myObject, {depth: 1}))
 
 
@@ -13,14 +15,16 @@ const MIME_TIPE_MAP = {
   'image/jpg': 'jpg'
 };
 
-const FILE_LIMIT = 2; // Number of files per image
+const FILE_PATH_MAP = {
+  1: path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS),
+  2: path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS, constants.PATHS.THUMBNAILS)
+}; // The path destination is relative to server.js
 
 const storage = multer.diskStorage( {
   destination: ( req, file, cb ) => {
     const isValid = MIME_TIPE_MAP[ file.mimetype ];
     const error = isValid ? null : new Error( 'Invalid mime type' );
-    const path = req.files.length < FILE_LIMIT ? 'backend/images/posts' : 'backend/images/posts/thumbnails';
-    cb( error, path ); // The path destination is relative to server.js
+    cb( error, FILE_PATH_MAP[ req.files.length ] );
   },
   filename: ( req, file, cb ) => {
     const ext = MIME_TIPE_MAP[ file.mimetype ];
@@ -37,8 +41,8 @@ const deleteFile = async ( req, res, next ) => {
     .then( post => {
       if ( post.imagePath && ( isImageDeleted || isImageReplaced ) ) {
         const filename = post.imagePath.split( '/' ).pop();
-        fs.unlinkSync( 'backend/images/posts/' + filename ); // .unlinkSync method is provided by Node fs package
-        fs.unlinkSync( 'backend/images/posts/thumbnails/' + filename ); // .unlinkSync method is provided by Node fs package
+        Object.values( FILE_PATH_MAP ).forEach( path => fs.unlinkSync( path + '/' + filename ) );
+        // .unlinkSync method is provided by Node fs package
       }
     } ).catch( e => console.error( e.message ) );
   next();
@@ -48,12 +52,12 @@ const deleteFile = async ( req, res, next ) => {
  * This middleware is triggered for incoming POST request
  */
 // .single( 'image' ) method is provided by Multer and extracts a single file from 'image' property
-router.post( '', upload.array( 'image', FILE_LIMIT ), ( req, res, next ) => {
-  const url = req.protocol + '://' + req.get( 'host' );
+router.post( '', upload.array( 'image' ), ( req, res, next ) => {
+  const url = req.protocol + '://' + req.get( 'host' ) + '/';
   const post = new Post( {
     title: req.body.title || null,
     content: req.body.content || null,
-    imagePath: req.files.length ? url + '/images/' + req.files[0].filename : null
+    imagePath: req.files.length ? url + path.join( constants.PATHS.IMAGES, constants.PATHS.POSTS, req.files[0].filename ) : null
   } ); // body is a new field edited by BodyParser package
 
   Post.create( post ).then( post => {
@@ -76,16 +80,14 @@ router.post( '', upload.array( 'image', FILE_LIMIT ), ( req, res, next ) => {
  * This middleware replace completely an element by a new one
  * The middleware router.patch update an element with new values instead
  */
-router.put( '/:id', upload.array( 'image', FILE_LIMIT ), deleteFile, ( req, res, next ) => {
-  // if ( req.files.length || !req.body.imagePath ) {
-  //   deleteFile( req.params.id ); // Delete image file
-  // }
-  const url = req.protocol + '://' + req.get( 'host' );
+router.put( '/:id', upload.array( 'image' ), deleteFile, ( req, res, next ) => {
+  const url = req.protocol + '://' + req.get( 'host' ) + '/';
   const post = new Post( {
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
-    imagePath: req.files.length ? url + '/images/' + req.files[0].filename : req.body.imagePath
+    imagePath: req.files.length ?
+      url + path.join( constants.PATHS.IMAGES, constants.PATHS.POSTS, req.files[0].filename ) : req.body.imagePath
   } ); // body is a new field edited by BodyParser package
 
   Post.updateOne( { _id: req.params.id }, post )

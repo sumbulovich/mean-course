@@ -120,7 +120,7 @@ export class PostCreateComponent implements OnInit {
     }
     this.imageService.compressImage( file, this.compressedImageSettings )
     .pipe(
-      take( 1 ), // take only the first value and unsubscribe
+      take( 1 ), // Take the first emission and unsubscribe
       finalize( () => finishCompressing() ) // Execute when the observable completes
     )
     .subscribe(
@@ -137,7 +137,7 @@ export class PostCreateComponent implements OnInit {
 
     this.imageService.compressImage( file, this.thumbnailImageSettings )
     .pipe(
-      take( 1 ), // take only the first value and unsubscribe
+      take( 1 ), // Take the first emission and unsubscribe
       finalize( () => finishCompressing() ) // Execute when the observable completes
     )
     .subscribe(
