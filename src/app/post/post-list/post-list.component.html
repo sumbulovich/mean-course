@@ -1,0 +1,27 @@
+<ng-container *ngIf="!isLoading; else loading">
+  <mat-accordion *ngIf="posts.length > 0; else noPosts">
+    <mat-expansion-panel *ngFor="let post of posts">
+      <mat-expansion-panel-header class="mat-body-strong">
+        {{post.title}}
+      </mat-expansion-panel-header>
+      {{post.content}}
+      <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2">
+        <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border" *ngIf="post.imagePath">
+        <div fxLayout fxLayoutAlign="end" fxFlex="grow">
+          <button mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</button>
+          <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+        </div>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <ng-template #noPosts>
+    <p fxLayout fxLayoutAlign="center" class="mat-body">No posts added yet.</p>
+  </ng-template>
+</ng-container>
+
+<ng-template #loading>
+  <div fxLayout fxLayoutAlign="center">
+    <mat-spinner></mat-spinner>
+  </div>
+</ng-template>
