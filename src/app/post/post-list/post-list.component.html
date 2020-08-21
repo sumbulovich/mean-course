@@ -1,12 +1,13 @@
 <ng-container *ngIf="!isLoading; else loading">
-  <mat-accordion *ngIf="posts.length > 0; else noPosts">
+  <mat-accordion *ngIf="posts.length; else noPosts">
     <mat-expansion-panel *ngFor="let post of posts">
       <mat-expansion-panel-header class="mat-body-strong">
         {{post.title}}
       </mat-expansion-panel-header>
-      {{post.content}}
+      <span class="_text-pre">{{post.content}}</span>
       <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2">
-        <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border" *ngIf="post.imagePath">
+        <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border"
+          *ngIf="post.imagePath">
         <div fxLayout fxLayoutAlign="end" fxFlex="grow">
           <button mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</button>
           <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
@@ -14,11 +15,16 @@
       </mat-action-row>
     </mat-expansion-panel>
   </mat-accordion>
-
-  <ng-template #noPosts>
-    <p fxLayout fxLayoutAlign="center" class="mat-body">No posts added yet.</p>
-  </ng-template>
 </ng-container>
+<mat-paginator
+  [pageSize]="pageData?.pageSize" [pageSizeOptions]="[ 1, 5, 10, 25, 100 ]"
+  [length]="pageData?.length" [showFirstLastButtons]="true"
+  [class.invisible]="isLoading || !pageData.length" (page)="onChangePage($event)" #paginator>
+</mat-paginator>
+
+<ng-template #noPosts>
+  <p fxLayout fxLayoutAlign="center" class="mat-body">No posts added yet.</p>
+</ng-template>
 
 <ng-template #loading>
   <div fxLayout fxLayoutAlign="center">

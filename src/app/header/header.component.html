@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
- <a [routerLink]="['/']" class="text-light text-decoration-none">My messages</a>
+ <a [routerLink]="['/']" [state]="{resetPagination: true}" class="text-light text-decoration-none">My messages</a>
  <div flexLayout fxFlex fxLayoutAlign="end none">
   <button mat-mini-fab color="primary" [routerLink]="['/create']" routerLinkActive #rla="routerLinkActive" [disabled]="rla.isActive">
     <mat-icon>add</mat-icon>

@@ -1,3 +1,4 @@
+import { PageEvent } from '@angular/material/paginator';
 import { Image } from '../image/image.model';
 import { Post } from './post.model';
 import { Injectable } from '@angular/core';
@@ -12,17 +13,20 @@ import { Router } from '@angular/router';
 export class PostService {
   private posts: Post[] = [];
   private postUpdated = new Subject<Post[]>();
-
+  private pageData: PageEvent;
   constructor(
     private http: HttpClient,
     private router: Router
   ) { }
 
-  getPosts(): void {
-    // return [ ...this.posts ];
+  getPosts( pageData: PageEvent ): void {
+    const queryParams = `?pagesize=${pageData.pageSize}&pageindex=${pageData.pageIndex}`;
     this.http
-      .get<{ message: string, posts: any }>( 'http://localhost:3000/api/posts' )
+      .get<{ message: string, posts: any, totalPosts: number }>( 'http://localhost:3000/api/posts' + queryParams )
       .pipe( map( ( responseData ) => {
+        console.log( responseData.message );
+        this.pageData = { ...pageData, length: responseData.totalPosts };
+
         return responseData.posts.map( ( postDb: any ) => {
           if ( postDb.imagePath ) {
             postDb.imagePath = postDb.imagePath.replace('posts/', 'posts/thumbnails/');
@@ -56,17 +60,21 @@ export class PostService {
     postData.append( 'title', post.title );
     postData.append( 'content', post.content );
     if ( image ) {
-      const fileName =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
+      const fileName: string =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
       postData.append( 'image', image.image, fileName);
       postData.append( 'image', image.thumbnail, fileName);
     }
     this.http
       .post<{ message: string, post: any }>( 'http://localhost:3000/api/posts', postData )
       .subscribe( ( responseData ) => {
-        console.log( responseData.message );
+        this.pageData.length++;
+        const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
+        this.pageData.pageIndex = lastPageIndex,
+        /*
         const postDb = responseData.post;
         this.posts.push( new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath ) );
         this.postUpdated.next( [ ...this.posts ] );
+        */ // Not necessary postUpdated because we are navigating to post-list
         this.router.navigate( [ '/' ] );
       } );
   }
@@ -78,7 +86,7 @@ export class PostService {
     postData.append( 'content', post.content );
     postData.append( 'imagePath', post.imagePath );
     if ( image ) {
-      const fileName =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
+      const fileName: string =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
       postData.append( 'image', image.image, fileName);
       postData.append( 'image', image.thumbnail, fileName);
     }
@@ -86,24 +94,39 @@ export class PostService {
       .put<{ message: string }>( 'http://localhost:3000/api/posts/' + post.id, postData )
       .subscribe( ( responseData ) => {
         console.log( responseData.message );
-        const postIndex = this.posts.findIndex( p => p.id === post.id );
+        /*
+        const postIndex: number = this.posts.findIndex( p => p.id === post.id );
         this.posts[ postIndex ] = post;
         this.postUpdated.next( [ ...this.posts ] );
+        */ // Not necessary postUpdated because we are navigating to post-list
         this.router.navigate( [ '/' ] );
       } ); // We can use PUT or PATCH methods
   }
 
-  deletePost( postId: string ): void {
+  deletePost( postId: string, pageData?: PageEvent ): void {
     this.http
       .delete<{ message: string }>( 'http://localhost:3000/api/posts/' + postId )
       .subscribe( ( responseData ) => {
         console.log( responseData.message );
-        const updatedPosts = this.posts.filter( post => post.id !== postId );
+        this.pageData.length--;
+        const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1
+        if ( this.pageData.pageIndex > lastPageIndex ) {
+          this.pageData.pageIndex = lastPageIndex;
+        }
+        /*
+        const updatedPosts: Posts[] = this.posts.filter( post => post.id !== postId );
         this.posts = updatedPosts;
         this.postUpdated.next( [ ...this.posts ] );
-        if ( this.router.url !== '/' ) {
-          this.router.navigate( [ '/' ] );
-        }
+        */ // Not necessary postUpdated because we are navigating or calling getPost
+        if ( pageData ) {
+          this.getPosts( pageData );
+          return;
+        } // If it's deleted from post-list
+        this.router.navigate( [ '/' ] );
       } );
+  }
+
+  getPageData(): PageEvent {
+    return this.pageData;
   }
 }

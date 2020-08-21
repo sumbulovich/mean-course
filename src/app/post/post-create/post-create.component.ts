@@ -6,7 +6,7 @@ import { PostService } from './../post.service';
 import { Post } from './../post.model';
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 enum Mode { create, edit }
@@ -43,6 +43,7 @@ export class PostCreateComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private postService: PostService,
     private imageService: ImageService
   ) { }
@@ -61,23 +62,23 @@ export class PostCreateComponent implements OnInit {
     } );
 
     this.route.paramMap.subscribe( ( paramMap: ParamMap ) => {
-      if ( paramMap.has( 'postId' ) ) {
-        this.mode = Mode.edit;
-        this.isLoading = true;
-
-        const postId = paramMap.get( 'postId' );
-        this.postService.getPost( postId ).subscribe( ( post: Post ) => {
-          this.post = post;
-          this.form.patchValue( {
-            title: post.title,
-            content: post.content,
-          } ); // .setValue sets values of all formControls
-          this.imagePreview = post.imagePath;
-          this.isLoading = false;
-        } );
-      } else {
+      if ( !paramMap.has( 'postId' ) ) {
         this.mode = Mode.create;
+        return;
       }
+      this.mode = Mode.edit;
+      this.isLoading = true;
+
+      const postId: string = paramMap.get( 'postId' );
+      this.postService.getPost( postId ).subscribe( ( post: Post ) => {
+        this.post = post;
+        this.form.patchValue( {
+          title: post.title,
+          content: post.content,
+        } ); // .setValue sets values of all formControls
+        this.imagePreview = post.imagePath;
+        this.isLoading = false;
+      } );
     } );
   }
 
@@ -129,9 +130,9 @@ export class PostCreateComponent implements OnInit {
       }, ( error: { compressedFile: Blob, reason: string, error: string } ) => {
         if ( error.error === 'PNG_WITH_ALPHA' ) {
           this.image.image = error.compressedFile;
-        } else {
-          console.error( error.reason );
+          return;
         }
+        console.error( error.reason );
       }
     );
 
@@ -146,9 +147,9 @@ export class PostCreateComponent implements OnInit {
       }, ( error: { compressedFile: Blob, reason: string, error: string } ) => {
         if ( error.error === 'PNG_WITH_ALPHA' ) {
           this.image.thumbnail = error.compressedFile;
-        } else {
-          console.error( error.reason );
+          return;
         }
+        console.error( error.reason );
       }
     );
   }
@@ -175,18 +176,17 @@ export class PostCreateComponent implements OnInit {
     }
     this.isLoading = true;
     if ( this.mode === Mode.create ) {
-      this.postService.addPost(
-        new Post( null, this.form.value.title, this.form.value.content ),
-        this.image
-      );
+      const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
+      this.postService.addPost( post, this.image );
     } else {
-      this.postService.updatePost(
-        new Post( this.post.id, this.form.value.title, this.form.value.content, this.imagePreview ),
-        this.image
-      );
+      const post = new Post( this.post.id, this.form.value.title.trim(), this.form.value.content.trim(), this.imagePreview );
+      if ( JSON.stringify( this.post ) === JSON.stringify( post ) ) {
+        this.router.navigate( [ '/' ] );
+        return;
+      } // If there is not changes
+      this.postService.updatePost( post, this.image );
     }
-    // form.resetForm();
-    this.form.reset();
+    // this.form.reset();
   }
 
   onDeleteImage(): void {

@@ -2,12 +2,14 @@ const express = require( 'express' ); // Import Express package
 const multer = require( 'multer' ); // Import Multer package
 const path = require( 'path' ); // Import path of Node.js
 const fs = require( 'fs' ) // Import File System of Node.js
-const Post = require( '../models/post' ); // Import Mongoose Post model
-const constants = require( '../constants' ); // Import Post routes
+const globals = require( '../globals' ); // Import Post routes
 const util = require('util'); // console.log(util.inspect(myObject, {depth: 1}))
-
+const Post = require( '../models/post' ); // Import Mongoose Post model
 
 const router = express.Router(); // Create Express Router
+
+const PATHS = globals.CONSTANTS.paths;
+const Page = globals.CLASSES.Page;
 
 const MIME_TIPE_MAP = {
   'image/png': 'png',
@@ -16,8 +18,8 @@ const MIME_TIPE_MAP = {
 };
 
 const FILE_PATH_MAP = {
-  1: path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS),
-  2: path.join( constants.PATHS.ROOT, constants.PATHS.IMAGES, constants.PATHS.POSTS, constants.PATHS.THUMBNAILS)
+  1: path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.POSTS ),
+  2: path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.POSTS, PATHS.THUMBNAILS )
 }; // The path destination is relative to server.js
 
 const storage = multer.diskStorage( {
@@ -44,9 +46,25 @@ const deleteFile = async ( req, res, next ) => {
         Object.values( FILE_PATH_MAP ).forEach( path => fs.unlinkSync( path + '/' + filename ) );
         // .unlinkSync method is provided by Node fs package
       }
-    } ).catch( e => console.error( e.message ) );
+    } ).catch( error => console.error( error.message ) );
   next();
-} // Custom method to delete stored file synchronously ( fs.unlink(filePath, callbackFunction) for async )
+} // Custom middleware to delete stored file synchronously ( fs.unlink(filePath, callbackFunction) for async )
+
+const createDirectories = ( ( req, res, next ) => {
+  Object.values( FILE_PATH_MAP ).forEach( dir => {
+    fs.mkdir( dir, { recursive: true }, error => {
+      if ( error ) {
+        return console.log( error.message );
+      }
+    } );
+  } );
+  next();
+} ); // Custom middleware to create directories if not exist
+
+/*
+ * This middleware is execute just one time and create Post image directories if not exist
+ */
+router.use( globals.METHODS.oneTime( createDirectories ) );
 
 /*
  * This middleware is triggered for incoming POST request
@@ -57,7 +75,7 @@ router.post( '', upload.array( 'image' ), ( req, res, next ) => {
   const post = new Post( {
     title: req.body.title || null,
     content: req.body.content || null,
-    imagePath: req.files.length ? url + path.join( constants.PATHS.IMAGES, constants.PATHS.POSTS, req.files[0].filename ) : null
+    imagePath: req.files.length ? url + path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename ) : null
   } ); // body is a new field edited by BodyParser package
 
   Post.create( post ).then( post => {
@@ -87,7 +105,7 @@ router.put( '/:id', upload.array( 'image' ), deleteFile, ( req, res, next ) => {
     title: req.body.title,
     content: req.body.content,
     imagePath: req.files.length ?
-      url + path.join( constants.PATHS.IMAGES, constants.PATHS.POSTS, req.files[0].filename ) : req.body.imagePath
+      url + path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename ) : req.body.imagePath
   } ); // body is a new field edited by BodyParser package
 
   Post.updateOne( { _id: req.params.id }, post )
@@ -102,13 +120,24 @@ router.put( '/:id', upload.array( 'image' ), deleteFile, ( req, res, next ) => {
  * This middleware fetch initial posts
  */
 router.get( '', ( req, res, next ) => {
-  Post.find()
-    .then( posts => {
-      res.status( 200 ).json( {
-        message: 'Posts fetched succesfully!',
-        posts: posts
-      } ); // 200 code for success
-    } ); // .find method is provided by Mongoose to its models
+  const page = new Page( +req.query.pageindex, +req.query.pagesize );
+  const postQuery = Post.find(); // .find method is provided by Mongoose to its models
+  let fetchedPosts;
+  if( page.pageSize && page.pageIndex >= 0 ) {
+    poptQuery
+      .skip( page.pageSize * page.pageIndex )
+      .limit( page.pageSize );
+  }
+  postQuery.then( posts => {
+    fetchedPosts = posts;
+    return Post.countDocuments(); // .count method is provided by Mongoose to count the number of entries
+  } ).then( count => { // It's posible chain multiple promises
+    res.status( 200 ).json( {
+      message: 'Posts fetched succesfully!',
+      posts: fetchedPosts,
+      totalPosts: count
+    } ); // 200 code for success
+  } );
 } );
 
 /*
