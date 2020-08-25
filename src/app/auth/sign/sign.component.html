@@ -1,0 +1,24 @@
+<mat-card *ngIf="!isLoading; else loading">
+  <!-- <form (submit)="onSavePost(postForm)" #postForm="ngForm" fxLayout="column"> -->
+  <form fxLayout="column" (submit)="onSubmit(signForm)" #signForm="ngForm">
+    <mat-form-field>
+      <!-- <input matInput placeholder="Title" type="text" name="title" [ngModel]="post?.title" #title="ngModel" required> -->
+      <input matInput placeholder="E-Mail" type="email" name="email" ngModel #emailInput="ngModel" required email>
+      <mat-error *ngIf="emailInput.invalid">Please enter a valid email.</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <!-- <textarea matInput cdkTextareaAutosize placeholder="Content" name="content" [ngModel]="post?.content" #content="ngModel" required></textarea> -->
+      <input matInput placeholder="Password" type="password" name="password" ngModel #passwordInput="ngModel" required>
+      <mat-error *ngIf="passwordInput.invalid">Please enter a valid password.</mat-error>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="">
+      {{modeTypes[mode]}}
+    </button>
+  </form>
+</mat-card>
+
+<ng-template #loading>
+  <div fxLayout fxLayoutAlign="center">
+    <mat-spinner></mat-spinner>
+  </div>
+</ng-template>

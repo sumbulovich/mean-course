@@ -5,6 +5,7 @@ const paths = {
   ROOT: 'backend',
   IMAGES: 'images',
   POSTS: 'posts',
+  USERS: 'users',
   THUMBNAILS: 'thumbnails'
 } // All project paths
 
@@ -23,7 +24,7 @@ class Page {
  */
 function oneTime( mw ) {
   let done = false;
-  return function ( req, res, next ) {
+  return ( req, res, next ) => {
     if ( done ) {
       next();
       return
@@ -31,24 +32,18 @@ function oneTime( mw ) {
     mw( req, res, next );
     done = true;
   }
-} // Custom method that execute a meddleware just one time
-
-function multipleOneTime( arr ) {
-  const express = require( 'express' ); // Import Express Package
-  const router = express.Router()
-  router.use.apply(router, arguments)
-  return oneTime(router)
-} // Custom method that execute multiple meddlewares just one time
+} // Custom method that execute a middleware just one time
 
 module.exports = {
   CONSTANTS: {
-    'paths': paths
+    PATHS: paths,
+    AUTH_SECRET_KEY: 'GlNcAuQGzYLkvSyHvT1MkQ==',
+    TOKEN_EXPIRATION_TIME: '1h'
   },
   CLASSES: {
-    'Page': Page
+    PAGE: Page
   },
   METHODS: {
-    'oneTime': oneTime,
-    'multipleOneTime': multipleOneTime
+    ONE_TIME: oneTime
   }
 }; // Export Globals

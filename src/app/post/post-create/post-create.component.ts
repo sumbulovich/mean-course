@@ -1,3 +1,4 @@
+import { PATHS } from './../../constants';
 import { ImageService } from './../../image/image.service';
 import { take, finalize } from 'rxjs/operators';
 import { ImageSettings, Image } from '../../image/image.model';
@@ -125,8 +126,8 @@ export class PostCreateComponent implements OnInit {
       finalize( () => finishCompressing() ) // Execute when the observable completes
     )
     .subscribe(
-      ( compresedFile: File ) => {
-        this.image.image = compresedFile;
+      ( compressedFile: File ) => {
+        this.image.image = compressedFile;
       }, ( error: { compressedFile: Blob, reason: string, error: string } ) => {
         if ( error.error === 'PNG_WITH_ALPHA' ) {
           this.image.image = error.compressedFile;
@@ -142,8 +143,8 @@ export class PostCreateComponent implements OnInit {
       finalize( () => finishCompressing() ) // Execute when the observable completes
     )
     .subscribe(
-      ( compresedFile: File ) => {
-        this.image.thumbnail = compresedFile;
+      ( compressedFile: File ) => {
+        this.image.thumbnail = compressedFile;
       }, ( error: { compressedFile: Blob, reason: string, error: string } ) => {
         if ( error.error === 'PNG_WITH_ALPHA' ) {
           this.image.thumbnail = error.compressedFile;
@@ -181,7 +182,7 @@ export class PostCreateComponent implements OnInit {
     } else {
       const post = new Post( this.post.id, this.form.value.title.trim(), this.form.value.content.trim(), this.imagePreview );
       if ( JSON.stringify( this.post ) === JSON.stringify( post ) ) {
-        this.router.navigate( [ '/' ] );
+        this.router.navigate( [ PATHS.HOME ] );
         return;
       } // If there is not changes
       this.postService.updatePost( post, this.image );

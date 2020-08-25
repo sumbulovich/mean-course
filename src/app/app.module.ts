@@ -1,8 +1,9 @@
+import { AuthInterceptor } from './auth/auth.interceptor';
 import { MaterialModule } from './material.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule} from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppComponent } from './app.component';
@@ -12,13 +13,15 @@ import { HeaderComponent } from './header/header.component';
 import { PostListComponent } from './post/post-list/post-list.component';
 import { AppRoutingModule } from './app-routing.module';
 import { Ng2ImgMaxModule } from 'ng2-img-max';
+import { SignComponent } from './auth/sign/sign.component';
 
 @NgModule( {
   declarations: [
     AppComponent,
     PostCreateComponent,
     HeaderComponent,
-    PostListComponent
+    PostListComponent,
+    SignComponent
   ],
   imports: [
     BrowserModule,
@@ -28,9 +31,13 @@ import { Ng2ImgMaxModule } from 'ng2-img-max';
     AppRoutingModule,
     FlexLayoutModule,
     ReactiveFormsModule,
+    FormsModule,
     Ng2ImgMaxModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    // multi as true adds a new Interceptor instead to override the existing ones
+  ],
   bootstrap: [ AppComponent ]
 } )
 export class AppModule { }

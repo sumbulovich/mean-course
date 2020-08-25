@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayout.xs="column" *ngIf="!isLoading; else loading">
   <div fxLayout="column" fxFlex="25" fxLayoutAlign="center">
-    <div fxFlex="grow" fxLayoutAlign="center center" class="border bg-light _cursor-pointer _img-container" (click)="filePicker.click()">
+    <div fxFlex="grow" fxLayoutAlign="center center" class="border bg-white _cursor-pointer _img-container" (click)="filePicker.click()">
       <img class="w-100" [src]="imagePreview" [alt]="form.value.title" *ngIf="imagePreview && !isCompressing">
       <mat-hint *ngIf="isCompressing">Uploading...</mat-hint>
       <mat-icon [inline]="true" class="text-muted"  *ngIf="!imagePreview">add_photo_alternate</mat-icon>

@@ -1,4 +1,5 @@
-const mongoose = require( 'mongoose' );
+const mongoose = require( 'mongoose' ); // Import Mongoose package
+
 const postSchema = mongoose.Schema({
   title: { type: String, required: true }, // On JavaScript Srting type is with capital
   content: { type: String, required: true },

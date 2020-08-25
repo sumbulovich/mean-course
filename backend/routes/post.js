@@ -5,11 +5,12 @@ const fs = require( 'fs' ) // Import File System of Node.js
 const globals = require( '../globals' ); // Import Post routes
 const util = require('util'); // console.log(util.inspect(myObject, {depth: 1}))
 const Post = require( '../models/post' ); // Import Mongoose Post model
+const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router(); // Create Express Router
 
-const PATHS = globals.CONSTANTS.paths;
-const Page = globals.CLASSES.Page;
+const PATHS = globals.CONSTANTS.PATHS;
+const Page = globals.CLASSES.PAGE;
 
 const MIME_TIPE_MAP = {
   'image/png': 'png',
@@ -50,27 +51,27 @@ const deleteFile = async ( req, res, next ) => {
   next();
 } // Custom middleware to delete stored file synchronously ( fs.unlink(filePath, callbackFunction) for async )
 
-const createDirectories = ( ( req, res, next ) => {
+const createDirectories = ( req, res, next ) => {
   Object.values( FILE_PATH_MAP ).forEach( dir => {
     fs.mkdir( dir, { recursive: true }, error => {
       if ( error ) {
-        return console.log( error.message );
+        return console.error( error.message );
       }
     } );
   } );
   next();
-} ); // Custom middleware to create directories if not exist
+}; // Custom middleware to create directories if not exist
 
 /*
  * This middleware is execute just one time and create Post image directories if not exist
  */
-router.use( globals.METHODS.oneTime( createDirectories ) );
+router.use( globals.METHODS.ONE_TIME( createDirectories ) );
 
 /*
  * This middleware is triggered for incoming POST request
  */
 // .single( 'image' ) method is provided by Multer and extracts a single file from 'image' property
-router.post( '', upload.array( 'image' ), ( req, res, next ) => {
+router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
   const url = req.protocol + '://' + req.get( 'host' ) + '/';
   const post = new Post( {
     title: req.body.title || null,
@@ -80,16 +81,16 @@ router.post( '', upload.array( 'image' ), ( req, res, next ) => {
 
   Post.create( post ).then( post => {
     res.status( 201 ).json( {
-      message: 'Post added successfully',
+      message: 'Post created successfully',
       post: post
-    } ); // 201 new resorce was created
+    } ); // 201 new resource was created
   } ); // .create method is provided by Mongoose to its models
   /*
   post.save().then( post => {
     res.status( 201 ).json( {
       message: 'Post added successfully',
       postId: post._id
-    } ); // 201 new resorce was created
+    } ); // 201 new resource was created
   } ); // .save is an instance method of the model provided by Mongoose
   */
 } );
@@ -98,7 +99,7 @@ router.post( '', upload.array( 'image' ), ( req, res, next ) => {
  * This middleware replace completely an element by a new one
  * The middleware router.patch update an element with new values instead
  */
-router.put( '/:id', upload.array( 'image' ), deleteFile, ( req, res, next ) => {
+router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, next ) => {
   const url = req.protocol + '://' + req.get( 'host' ) + '/';
   const post = new Post( {
     _id: req.body.id,
@@ -124,16 +125,16 @@ router.get( '', ( req, res, next ) => {
   const postQuery = Post.find(); // .find method is provided by Mongoose to its models
   let fetchedPosts;
   if( page.pageSize && page.pageIndex >= 0 ) {
-    poptQuery
+    postQuery
       .skip( page.pageSize * page.pageIndex )
       .limit( page.pageSize );
   }
   postQuery.then( posts => {
     fetchedPosts = posts;
     return Post.countDocuments(); // .count method is provided by Mongoose to count the number of entries
-  } ).then( count => { // It's posible chain multiple promises
+  } ).then( count => { // It's possible chain multiple promises
     res.status( 200 ).json( {
-      message: 'Posts fetched succesfully!',
+      message: 'Posts fetched successfully!',
       posts: fetchedPosts,
       totalPosts: count
     } ); // 200 code for success
@@ -146,23 +147,23 @@ router.get( '', ( req, res, next ) => {
 router.get( '/:id', ( req, res, next ) => {
   Post.findById( req.params.id )
     .then( post => {
-      if ( post ) {
-        res.status( 200 ).json( {
-          message: 'Post fetched succesfully!',
-          post: post
-        } ); // 200 code for success
-      } else {
+      if ( !post ) {
         res.status( 404 ).json( {
           message: 'Post not found!',
-        } ); // 404 code not found
+        } ); // 404 code for not found
+        return;
       }
+      res.status( 200 ).json( {
+        message: 'Post fetched successfully!',
+        post: post
+      } ); // 200 code for success
     } ); // .find method is provided by Mongoose to its models
 } );
 
 /*
  * This middleware delete an element by id
  */
-router.delete( '/:id', deleteFile, ( req, res, next ) => {
+router.delete( '/:id', checkAuth, deleteFile, ( req, res, next ) => {
   Post.deleteOne( { _id: req.params.id } )
     .then( result => {
       res.status( 200 ).json( {
@@ -171,4 +172,4 @@ router.delete( '/:id', deleteFile, ( req, res, next ) => {
     } ); // .deleteOne method is provided by Mongoose to its models
 } );
 
-module.exports = router; // Export app
+module.exports = router; // Export router

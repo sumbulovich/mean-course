@@ -2,12 +2,14 @@ const express = require( 'express' ); // Import Express Package
 const bodyParser = require( 'body-parser' ); // Import Body Parser Package
 const mongoose = require( 'mongoose' ); // Import Mongoose Package
 const path = require( 'path' ); // Import path of Node.js
-const postRoutes = require( './routes/post' ); // Import Post routes
 const globals = require( './globals' ); // Import Post routes
+const postRoutes = require( './routes/post' ); // Import Post routes
+const userRoutes = require( './routes/user' ); // Import User routes
+
 
 const app = express(); // Create Express app
 
-const PATHS = globals.CONSTANTS.paths;
+const PATHS = globals.CONSTANTS.PATHS;
 
 // <password>: LixcfGOg6dwrDXrB
 // <dbname>: node-angular
@@ -63,8 +65,8 @@ app.use( (req, res, next ) => {
 
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Origin, X-Request-With, Content-Type, Accept'
-  ); // Restrict the incoming request to have the definned headers
+    'Origin, X-Request-With, Content-Type, Accept, Authorization' // Allow custom Authorization header
+  ); // Restrict the incoming request to have the defined headers
 
   res.setHeader(
     'Access-Control-Allow-Methods',
@@ -74,6 +76,7 @@ app.use( (req, res, next ) => {
   next();
 } );
 
-app.use( '/api/posts', postRoutes ); // Use Post routes with the path '/api/posts'
+app.use( '/api/' + PATHS.POSTS, postRoutes ); // Use Post routes with the path '/api/post'
+app.use( '/api/' + PATHS.USERS, userRoutes ); // Use User routes with the path '/api/user'
 
 module.exports = app; // Export app
