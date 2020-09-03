@@ -2,10 +2,11 @@ const express = require( 'express' ); // Import Express package
 const multer = require( 'multer' ); // Import Multer package
 const path = require( 'path' ); // Import path of Node.js
 const fs = require( 'fs' ) // Import File System of Node.js
+const util = require('util'); // Import Util package (console.log(util.inspect(myObject, {depth: 1}))
 const globals = require( '../globals' ); // Import Post routes
-const util = require('util'); // console.log(util.inspect(myObject, {depth: 1}))
 const Post = require( '../models/post' ); // Import Mongoose Post model
 const checkAuth = require('../middleware/check-auth');
+const oneTime = require('../middleware/one-time');
 
 const router = express.Router(); // Create Express Router
 
@@ -65,10 +66,10 @@ const createDirectories = ( req, res, next ) => {
 /*
  * This middleware is execute just one time and create Post image directories if not exist
  */
-router.use( globals.METHODS.ONE_TIME( createDirectories ) );
+router.use( oneTime( createDirectories ) );
 
 /*
- * This middleware is triggered for incoming POST request
+ * This middleware creates a new element
  */
 // .single( 'image' ) method is provided by Multer and extracts a single file from 'image' property
 router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
@@ -118,7 +119,7 @@ router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, 
 } );
 
 /*
- * This middleware fetch initial posts
+ * This middleware fetch initial elements
  */
 router.get( '', ( req, res, next ) => {
   const page = new Page( +req.query.pageindex, +req.query.pagesize );
@@ -142,7 +143,7 @@ router.get( '', ( req, res, next ) => {
 } );
 
 /*
- * This middleware fetch specific post
+ * This middleware fetch specific element
  */
 router.get( '/:id', ( req, res, next ) => {
   Post.findById( req.params.id )

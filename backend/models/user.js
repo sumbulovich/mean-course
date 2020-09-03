@@ -4,7 +4,9 @@ const uniqueValidator = require( 'mongoose-unique-validator' ); // Import Mongoo
 mongoose.set( 'useCreateIndex', true ); // Fix Deprecation Warning when is set a 'unique' field
 
 const userSchema = mongoose.Schema( {
-  email: { type: String, required: true, unique: true }, // On JavaScript Srting type is with capital
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   imagePath: String
 } );

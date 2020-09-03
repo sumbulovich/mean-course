@@ -1,30 +1,35 @@
+<mat-toolbar fxLayout fxLayoutAlign="end" class="border-bottom shadow-sm h-auto py-2 mt-sm-n4 mb-sm-4" *ngIf="isAuthenticated">
+  <button mat-mini-fab color="primary" [routerLink]="PATHS.CREATE" routerLinkActive #rlaAdd="routerLinkActive" [disabled]="rlaAdd.isActive">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
 <ng-container *ngIf="!isLoading; else loading">
-  <div fxLayout fxLayoutAlign="end" class="mb-3" *ngIf="isAuthenticated">
-    <button mat-mini-fab color="primary" [routerLink]="PATHS.CREATE" routerLinkActive #rlaAdd="routerLinkActive" [disabled]="rlaAdd.isActive">
-      <mat-icon>add</mat-icon>
-    </button>
-  </div>
-  <mat-accordion *ngIf="posts.length; else noPosts">
-    <mat-expansion-panel *ngFor="let post of posts">
-      <mat-expansion-panel-header class="mat-body-strong">
-        {{post.title}}
-      </mat-expansion-panel-header>
-      <span class="_text-pre">{{post.content}}</span>
-      <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2" *ngIf="isAuthenticated || post.imagePath">
-        <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border"
-          *ngIf="post.imagePath">
-        <div fxLayout fxLayoutAlign="end" fxFlex="grow" *ngIf="isAuthenticated">
-          <button mat-button color="primary" [routerLink]="[PATHS.EDIT, post.id]">EDIT</button>
-          <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
-        </div>
-      </mat-action-row>
-    </mat-expansion-panel>
-  </mat-accordion>
+  <section class="mx-sm-3">
+    <mat-accordion *ngIf="posts.length; else noPosts">
+      <mat-expansion-panel *ngFor="let post of posts">
+        <mat-expansion-panel-header class="mat-body-strong">
+          {{post.title}}
+        </mat-expansion-panel-header>
+        <!-- Lazy rendering of the Panel's content -->
+        <ng-template matExpansionPanelContent>
+          <span class="_text-pre">{{post.content}}</span>
+        </ng-template>
+        <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2" *ngIf="isAuthenticated || post.imagePath">
+          <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border"
+            *ngIf="post.imagePath">
+          <div fxLayout fxLayoutAlign="end" fxFlex="grow" *ngIf="isAuthenticated">
+            <button mat-button color="primary" [routerLink]="[PATHS.EDIT, post.id]">EDIT</button>
+            <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+          </div>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </section>
 </ng-container>
 <mat-paginator
   [pageSize]="pageData?.pageSize" [pageSizeOptions]="[ 1, 5, 10, 25, 100 ]"
   [length]="pageData?.length" [showFirstLastButtons]="true" (page)="onChangePage($event)"
-  [class.invisible]="isLoading || !pageData.length" class="bg-light" #paginator>
+  [class.invisible]="isLoading || !pageData.length" class="bg-transparent" #paginator>
 </mat-paginator>
 
 <ng-template #noPosts>

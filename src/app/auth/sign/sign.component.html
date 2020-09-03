@@ -1,19 +1,69 @@
-<mat-card *ngIf="!isLoading; else loading">
-  <!-- <form (submit)="onSavePost(postForm)" #postForm="ngForm" fxLayout="column"> -->
-  <form fxLayout="column" (submit)="onSubmit(signForm)" #signForm="ngForm">
-    <mat-form-field>
-      <!-- <input matInput placeholder="Title" type="text" name="title" [ngModel]="post?.title" #title="ngModel" required> -->
-      <input matInput placeholder="E-Mail" type="email" name="email" ngModel #emailInput="ngModel" required email>
-      <mat-error *ngIf="emailInput.invalid">Please enter a valid email.</mat-error>
+<mat-card class="mx-auto p-4" *ngIf="!isLoading; else loading">
+  <form fxLayout="column" (submit)="onSubmit(signForm)" #signForm="ngForm" [appMatchFields]="['password', 'confirmPassword']">
+    <p class="mat-body-strong text-center">{{modeTypes[mode]}}</p>
+    <ng-container *ngIf="mode === modeTypes.signUp">
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>First Name</mat-label>
+        <input matInput type="text" name="firstName"
+          ngModel #firstNameInput="ngModel" maxlength="32" required>
+        <mat-error *ngIf="firstNameInput.invalid">Required.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>Last Name</mat-label>
+        <input matInput type="text" name="lastName"
+          ngModel #lastNameInput="ngModel" maxlength="32" required>
+        <mat-error *ngIf="lastNameInput.invalid">Required.</mat-error>
+      </mat-form-field>
+    </ng-container>
+
+    <mat-form-field appearance="outline" hideRequiredMarker>
+      <mat-label>E-Mail</mat-label>
+      <input matInput type="email" name="email"
+        ngModel #emailInput="ngModel" email maxlength="64" required>
+      <mat-error *ngIf="emailInput.errors?.required">Required.</mat-error>
+      <mat-error *ngIf="emailInput.errors?.email">Please enter a valid email.</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <!-- <textarea matInput cdkTextareaAutosize placeholder="Content" name="content" [ngModel]="post?.content" #content="ngModel" required></textarea> -->
-      <input matInput placeholder="Password" type="password" name="password" ngModel #passwordInput="ngModel" required>
-      <mat-error *ngIf="passwordInput.invalid">Please enter a valid password.</mat-error>
+    <mat-form-field appearance="outline" hideRequiredMarker>
+      <mat-label>Password</mat-label>
+      <input matInput [type]="hidePassword ? 'password' : 'text'" name="password"
+        ngModel #passwordInput="ngModel" minlength="8" maxlength="32" [pattern]="passwordPattern" required>
+      <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword"
+        [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+      <mat-error *ngIf="passwordInput.errors?.required">Required.</mat-error>
+      <mat-error *ngIf="passwordInput.errors?.minlength">Password must be at least 8 characters.</mat-error>
+      <mat-error *ngIf="!passwordInput.errors?.minlength && passwordInput.errors?.pattern">
+        Please, increase the Password strength.
+      </mat-error>
     </mat-form-field>
-    <button mat-raised-button color="primary" type="submit" [disabled]="">
+
+    <ng-container *ngIf="mode === modeTypes.signUp">
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>Confirm Password</mat-label>
+        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" name="confirmPassword"
+          ngModel #confirmPasswordInput="ngModel" maxlength="32" required>
+        <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword"
+          [attr.aria-label]="'Hide confirm password'" [attr.aria-pressed]="hideConfirmPassword">
+          <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="confirmPasswordInput.errors?.required">Required</mat-error>
+        <mat-error *ngIf="confirmPasswordInput.errors?.misMatch">Passwords must match.</mat-error>
+      </mat-form-field>
+      <mat-checkbox class="mat-small mt-1" name="accept" ngModel #acceptCheckbox required>
+        <span class="text-wrap">I read and accept the <a href="">Privacy Policy</a>  and <a href="">Terms and Conditions</a>.</span>
+      </mat-checkbox>
+    </ng-container>
+
+    <button class="mt-2" mat-raised-button color="primary" type="submit" [disabled]="">
       {{modeTypes[mode]}}
     </button>
+    <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signUp">
+      Already have an account? <a [routerLink]="PATHS.AUTH.SIGN_IN">{{modeTypes.signIn}}</a>.
+    </p>
+    <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signIn">
+      Don’t have an account? <a [routerLink]="PATHS.AUTH.SIGN_UP">{{modeTypes.signUp}}</a>.
+    </p>
   </form>
 </mat-card>
 

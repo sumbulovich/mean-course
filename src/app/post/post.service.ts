@@ -20,7 +20,7 @@ export class PostService {
     private router: Router
   ) { }
 
-  getPosts( pageData: PageEvent ): void {
+  getPosts( pageData: PageEvent = { pageSize: 5, pageIndex: 0, length: 0 } ): void {
     const queryParams = `?pagesize=${pageData.pageSize}&pageindex=${pageData.pageIndex}`;
     this.http
       .get<{ message: string, posts: any, totalPosts: number }>( API.ROOT + API.POSTS + queryParams )
@@ -68,6 +68,7 @@ export class PostService {
     this.http
       .post<{ message: string, post: any }>( API.ROOT + API.POSTS, postData )
       .subscribe( responseData => {
+        console.log( responseData.message );
         this.pageData.length++;
         const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
         this.pageData.pageIndex = lastPageIndex,

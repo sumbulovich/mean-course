@@ -1,9 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
-@import "~bootstrap-utilities";
-@import "~bootstrap-reboot";
 
-/* Extra Bootstrap Utilities not included on the package */
-.text-decoration-none { text-decoration: none !important; }
+/* Bootstrap */
+// Required
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+// Optional
+@import "~bootstrap/scss/reboot";
+@import "~bootstrap/scss/utilities";
 
 /* Custom classes */
 ._cursor-pointer { cursor: pointer !important; }

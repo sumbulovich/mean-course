@@ -6,7 +6,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule } from '@angular/material/paginator'
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule( {
   declarations: [],
@@ -18,7 +21,10 @@ import { MatPaginatorModule } from '@angular/material/paginator'
     MatExpansionModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatCheckboxModule,
+    MatSidenavModule,
+    MatDialogModule
   ],
   exports: [
     MatInputModule,
@@ -28,7 +34,10 @@ import { MatPaginatorModule } from '@angular/material/paginator'
     MatExpansionModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatCheckboxModule,
+    MatSidenavModule,
+    MatDialogModule
   ]
 } )
 export class MaterialModule { }

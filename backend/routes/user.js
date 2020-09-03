@@ -3,13 +3,18 @@ const bcrypt = require( 'bcrypt' ); // Import Bcrypt package
 const jwt = require( 'jsonwebtoken' ); // Import Bcrypt package
 const User = require( '../models/user' ); // Import Express package
 const globals = require( '../globals' ); // Import Post routes
-const ms = require( 'ms' ); // Import MS package
 
 const router = express.Router(); // Create Express Router
+const tokenList = {}
 
-router.post('/signup', ( req, res, next ) => {
+/*
+ * This middleware creates a new element
+ */
+router.post( '/signup', ( req, res, next ) => {
   bcrypt.hash( req.body.password, 10 ).then( hash => {
     const user = new User( {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       email: req.body.email,
       password: hash
     } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
@@ -21,7 +26,7 @@ router.post('/signup', ( req, res, next ) => {
           user: user
         } ); // user.save()
       } )
-      .catch ( error => {
+      .catch( error => {
         res.status( 500 ).json( {
           message: 'Error: User already exist!',
         } );
@@ -29,13 +34,16 @@ router.post('/signup', ( req, res, next ) => {
   } );
 } );
 
+/*
+ * This middleware find an element and create a new session Token
+ */
 router.post( '/signin', ( req, res, next ) => {
   let fetchedUser;
-  User.findOne( { email: req.body.email } )
+  User.findOne( { email: req.body.user.email } )
     .then( user => {
       if ( user ) {
         fetchedUser = user;
-        return bcrypt.compare( req.body.password, user.password );
+        return bcrypt.compare( req.body.user.password, user.password );
         // .compare is a method provided by Bcrypt to compare encrypted passwords returning a boolean
       }
     } )
@@ -46,16 +54,18 @@ router.post( '/signin', ( req, res, next ) => {
         } ); // 401 code for authentication denied
         return;
       }
-      const token = jwt.sign(
-        { email: fetchedUser.email, userId: fetchedUser._id },
-        globals.CONSTANTS.AUTH_SECRET_KEY, // Custom secret of private key used on the token's generation
-        { expiresIn: globals.CONSTANTS.TOKEN_EXPIRATION_TIME } // options?: expiresIn to define a expiration time
-      );
+
+      const payload = { email: fetchedUser.email, userId: fetchedUser._id }; // Payload to sign
+      const options = { expiresIn: req.body.expiresIn } // expiresIn to define a expiration time
+      const token = jwt.sign( payload, globals.CONSTANTS.TOKEN.SECRET_KEY, options );
+      const refreshToken = jwt.sign( payload, globals.CONSTANTS.TOKEN.SECRET_KEY_REFRESH, options );
       // .sign method provided by JsonWebToken to create a token based in some inputs of our choice
+      tokenList[ refreshToken ] = token; // Save Token on a token's list
+
       res.status( 200 ).json( {
         message: 'User logged successfully!',
         token: token,
-        expiresIn: ms( globals.CONSTANTS.TOKEN_EXPIRATION_TIME ) // Convert string time format to milliseconds
+        refreshToken: refreshToken
       } ); // 200 code for success
     } )
     .catch( error => {
@@ -64,5 +74,33 @@ router.post( '/signin', ( req, res, next ) => {
       } ); // 401 code for authentication denied
     } );
 } );
+
+router.post( '/token', ( req, res, next ) => {
+  const localStorage = req.body.localStorage;
+  if ( ( localStorage.refreshToken ) && ( localStorage.refreshToken in tokenList ) ) {
+    const verify = jwt.verify( localStorage.token, globals.CONSTANTS.TOKEN.SECRET_KEY );
+    const payload = { email: verify.email, userId: verify.userId };
+    const options = { expiresIn: req.body.expiresIn };
+    const token = jwt.sign( payload, globals.CONSTANTS.TOKEN.SECRET_KEY, options );
+    // .sign method provided by JsonWebToken to create a token based in some inputs of our choice
+    tokenList[ req.body.refreshToken ] = token// Update the Token in the token's list
+
+    res.status( 200 ).json( {
+      message: 'Token Refreshed successfully!',
+      token: token
+    } ); // 200 code for success
+  } else {
+    res.status( 401 ).json( {
+      message: 'Authentication failed!',
+    } ); // 401 code for authentication denied
+  }
+} );
+
+router.post( '/token/reject', ( req, res, next ) => {
+  if ( ( req.body.refreshToken ) && ( req.body.refreshToken in tokenList ) ) {
+    delete tokenList[ req.body.refreshToken ]
+  }
+  res.status( 204 ); // 204 code for no content (no message body)
+} )
 
 module.exports = router; // Export app

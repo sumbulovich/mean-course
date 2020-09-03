@@ -9,6 +9,11 @@ const paths = {
   THUMBNAILS: 'thumbnails'
 } // All project paths
 
+const token = {
+  SECRET_KEY: 'GlNcAuQGzYLkvSyHvT1MkQ==', // Custom secret of private key used on the token's generation
+  SECRET_KEY_REFRESH: 'IcU0d71mA388lsYfY3LHtA==', // Custom secret of private key used on the token's generation
+} // Token data
+
 /*
  * CLASSES
  */
@@ -19,31 +24,12 @@ class Page {
   }
 }
 
-/*
- * Methods
- */
-function oneTime( mw ) {
-  let done = false;
-  return ( req, res, next ) => {
-    if ( done ) {
-      next();
-      return
-    }
-    mw( req, res, next );
-    done = true;
-  }
-} // Custom method that execute a middleware just one time
-
 module.exports = {
   CONSTANTS: {
     PATHS: paths,
-    AUTH_SECRET_KEY: 'GlNcAuQGzYLkvSyHvT1MkQ==',
-    TOKEN_EXPIRATION_TIME: '1h'
+    TOKEN: token
   },
   CLASSES: {
     PAGE: Page
-  },
-  METHODS: {
-    ONE_TIME: oneTime
   }
 }; // Export Globals

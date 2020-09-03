@@ -3,13 +3,9 @@
   class="text-light text-decoration-none">My messages</a>
  <div flexLayout fxFlex fxLayoutAlign="end none">
    <nav>
-    <button mat-button [routerLink]="PATHS.SIGN_UP"
-      routerLinkActive #rlaSignUp="routerLinkActive" [disabled]="rlaSignUp.isActive"
-      *ngIf="!isAuthenticated">Sing Up</button>
-    <button mat-button [routerLink]="PATHS.SIGN_IN"
-      routerLinkActive #rlaSignIn="routerLinkActive" [disabled]="rlaSignIn.isActive"
-      *ngIf="!isAuthenticated">Login</button>
-    <button mat-button (click)="onSignOut()" *ngIf="isAuthenticated">Logout</button>
+      <a class="mat-body-strong text-decoration-none text-white mr-3" [routerLink]="PATHS.AUTH.SIGN_IN" *ngIf="!isAuthenticated">Log in</a>
+      <button mat-flat-button color="accent" [routerLink]="PATHS.AUTH.SIGN_UP" *ngIf="!isAuthenticated">Sing Up</button>
+      <button mat-button (click)="onSignOut()" *ngIf="isAuthenticated">Log out</button>
   </nav>
 </div>
 </mat-toolbar>

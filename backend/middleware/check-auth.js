@@ -4,7 +4,7 @@ const globals = require( '../globals' );
 module.exports = ( req, res, next ) => {
   try {
     const token = req.headers.authorization.split( ' ' ).pop(); //  Get just token of ['Bearer', token]
-    jwt.verify( token, globals.CONSTANTS.AUTH_SECRET_KEY );
+    jwt.verify( token, globals.CONSTANTS.TOKEN.SECRET_KEY );
     next();
   } catch ( error ) {
     res.status( 401 ).json( {

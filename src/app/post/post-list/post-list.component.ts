@@ -1,11 +1,10 @@
-import { AuthService } from './../../auth/auth.service';
-import { Router, NavigationStart } from '@angular/router';
+import { TokenService } from './../../auth/services/token.service';
+import { Router } from '@angular/router';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { PostService } from './../post.service';
 import { Post } from './../post.model';
-import { filter, take } from 'rxjs/operators';
 import { PATHS } from 'src/app/constants';
 
 @Component( {
@@ -26,7 +25,7 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   constructor(
     private postService: PostService,
-    private authService: AuthService,
+    private tokenService: TokenService,
     private router: Router
   ) {
     const navigationState = this.router.getCurrentNavigation().extras.state;
@@ -35,9 +34,8 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.pageData = this.postService.getPageData();
-    if ( this.resetPagination || !this.pageData ) {
-      this.pageData = { pageSize: 5, pageIndex: 0, length: 0 };
+    if ( !this.resetPagination ) {
+      this.pageData = this.postService.getPageData();
     }
     this.postService.getPosts( this.pageData );
     this.postsListenerSubs = this.postService.getPostUpdatedListener()
@@ -51,10 +49,10 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.posts = posts;
         this.isLoading = false;
       } );
-    this.isAuthenticated = !!this.authService.getToken(); // Get initial authenticated state
-    this.authListenerSubs = this.authService.getAuthStatusListener()
-      .subscribe( ( isAuthenticated: boolean ) => {
-        this.isAuthenticated = isAuthenticated;
+    this.isAuthenticated = !!this.tokenService.getToken(); // Get initial authenticated state
+    this.authListenerSubs = this.tokenService.getTokenListener()
+      .subscribe( ( token: string ) => {
+        this.isAuthenticated = !!token;
       } );
   }
 
