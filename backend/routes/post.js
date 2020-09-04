@@ -2,7 +2,6 @@ const express = require( 'express' ); // Import Express package
 const multer = require( 'multer' ); // Import Multer package
 const path = require( 'path' ); // Import path of Node.js
 const fs = require( 'fs' ) // Import File System of Node.js
-const util = require('util'); // Import Util package (console.log(util.inspect(myObject, {depth: 1}))
 const globals = require( '../globals' ); // Import Post routes
 const Post = require( '../models/post' ); // Import Mongoose Post model
 const checkAuth = require('../middleware/check-auth');
@@ -13,7 +12,7 @@ const router = express.Router(); // Create Express Router
 const PATHS = globals.CONSTANTS.PATHS;
 const Page = globals.CLASSES.PAGE;
 
-const MIME_TIPE_MAP = {
+const MIME_TYPE_MAP = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg'
@@ -26,12 +25,12 @@ const FILE_PATH_MAP = {
 
 const storage = multer.diskStorage( {
   destination: ( req, file, cb ) => {
-    const isValid = MIME_TIPE_MAP[ file.mimetype ];
+    const isValid = MIME_TYPE_MAP[ file.mimetype ];
     const error = isValid ? null : new Error( 'Invalid mime type' );
     cb( error, FILE_PATH_MAP[ req.files.length ] );
   },
   filename: ( req, file, cb ) => {
-    const ext = MIME_TIPE_MAP[ file.mimetype ];
+    const ext = MIME_TYPE_MAP[ file.mimetype ];
     cb( null, file.originalname + '.' + ext );
   }
 } ); // Define how Multer stores files
@@ -73,11 +72,18 @@ router.use( oneTime( createDirectories ) );
  */
 // .single( 'image' ) method is provided by Multer and extracts a single file from 'image' property
 router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
-  const url = req.protocol + '://' + req.get( 'host' ) + '/';
+  const imagePath = '';
+  if ( req.files.length ) {
+    imagePath = `${req.protocol}://${req.get( 'host' )}/
+      ${path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )}`
+  }
+
   const post = new Post( {
-    title: req.body.title || null,
-    content: req.body.content || null,
-    imagePath: req.files.length ? url + path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename ) : null
+    title: req.body.title,
+    content: req.body.content,
+    imagePath: imagePath,
+    creator: req.checkAuth.userId,
+    created: new Date()
   } ); // body is a new field edited by BodyParser package
 
   Post.create( post ).then( post => {
@@ -101,13 +107,16 @@ router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
  * The middleware router.patch update an element with new values instead
  */
 router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, next ) => {
-  const url = req.protocol + '://' + req.get( 'host' ) + '/';
+  const imagePath = req.body.imagePath;
+  if ( req.files.length ) {
+    imagePath = `${req.protocol}://${req.get( 'host' )}/
+      ${path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )}`
+  }
   const post = new Post( {
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
-    imagePath: req.files.length ?
-      url + path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename ) : req.body.imagePath
+    imagePath: imagePath
   } ); // body is a new field edited by BodyParser package
 
   Post.updateOne( { _id: req.params.id }, post )

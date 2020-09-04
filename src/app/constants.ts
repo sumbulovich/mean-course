@@ -18,7 +18,7 @@ export const API = {
 
 export const TIMINGS = {
   TOKEN_EXPIRATION: {
-    TIME: '1m', // 180000ms
+    TIME: '3m', // 180000ms
     DIALOG_BEFORE: '1m', // 60000ms
     REFRESH_BEFORE: '2m' // 120000ms
   }
