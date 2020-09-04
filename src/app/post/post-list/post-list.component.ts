@@ -1,4 +1,4 @@
-import { TokenService } from './../../auth/services/token.service';
+import { AuthService } from './../../auth/services/auth.service';
 import { Router } from '@angular/router';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -25,7 +25,7 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   constructor(
     private postService: PostService,
-    private tokenService: TokenService,
+    private authService: AuthService,
     private router: Router
   ) {
     const navigationState = this.router.getCurrentNavigation().extras.state;
@@ -49,8 +49,8 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.posts = posts;
         this.isLoading = false;
       } );
-    this.isAuthenticated = !!this.tokenService.getToken(); // Get initial authenticated state
-    this.authListenerSubs = this.tokenService.getTokenListener()
+    this.isAuthenticated = !!this.authService.getToken(); // Get initial authenticated state
+    this.authListenerSubs = this.authService.getTokenListener()
       .subscribe( ( token: string ) => {
         this.isAuthenticated = !!token;
       } );

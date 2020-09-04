@@ -1,4 +1,3 @@
-import { TokenService } from './../auth/services/token.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from './../auth/services/auth.service';
 import { PATHS } from './../constants';
@@ -15,13 +14,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authListenerSubs: Subscription;
 
   constructor(
-    private tokenService: TokenService,
     private authService: AuthService
-     ) { }
+  ) { }
 
   ngOnInit(): void {
-    this.isAuthenticated = !!this.tokenService.getToken(); // Get initial authenticated state
-    this.authListenerSubs = this.tokenService.getTokenListener()
+    this.isAuthenticated = !!this.authService.getToken(); // Get initial authenticated state
+    this.authListenerSubs = this.authService.getTokenListener()
       .subscribe( ( token: string ) => {
         this.isAuthenticated = !!token;
       } );

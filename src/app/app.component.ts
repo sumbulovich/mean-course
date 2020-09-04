@@ -1,4 +1,4 @@
-import { TokenService } from './auth/services/token.service';
+import { AuthService } from './auth/services/auth.service';
 import { filter } from 'rxjs/operators';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
@@ -12,20 +12,20 @@ export class AppComponent implements OnInit {
 
   constructor(
     public router: Router,
-    private tokenService: TokenService
+    private authService: AuthService
   ) {
     this.refreshToken();
   }
 
   ngOnInit(): void {
-    this.tokenService.autoAuth();
+    this.authService.autoAuth();
   }
 
   refreshToken(): void {
     this.router.events.pipe(
       filter( ( event: RouterEvent ) => event instanceof NavigationEnd )
     ).subscribe( () => {
-      this.tokenService.refreshToken();
+      this.authService.refreshToken();
     } );
   }
 }
