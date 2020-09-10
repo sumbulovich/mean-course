@@ -1,12 +1,12 @@
-import { UserService } from './../services/user.service';
-import { User } from './../auth.model';
+import { Subscription } from 'rxjs';
+import { User, AuthData } from './../auth.model';
 import { AuthService } from './../services/auth.service';
 import { PATHS } from './../../constants';
 import { Router } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { AuthData } from '../auth.model';
 import { MatCheckbox } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 enum Mode {
   signIn = 'Log in',
@@ -20,19 +20,19 @@ enum Mode {
   templateUrl: './sign.component.html',
   styleUrls: [ './sign.component.scss' ]
 } )
-export class SignComponent implements OnInit {
+export class SignComponent implements OnInit, OnDestroy {
+  @ViewChild( 'acceptCheckbox' ) acceptCheckbox: MatCheckbox;
   isLoading = false;
   modeTypes = Mode;
   mode: Mode;
   passwordPattern: RegExp;
   hidePassword = true;
   hideConfirmPassword = true;
-  @ViewChild( 'acceptCheckbox' ) acceptCheckbox: MatCheckbox;
   readonly PATHS = PATHS;
+  private authListenerSub: Subscription;
 
   constructor(
     private authService: AuthService,
-    private userService: UserService,
     private router: Router
   ) { }
 
@@ -41,6 +41,10 @@ export class SignComponent implements OnInit {
     if ( this.mode === Mode.signUp ) {
       this.passwordPattern = new RegExp( '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$' );
     }
+    this.authListenerSub = this.authService.getAuthListener()
+      .subscribe( ( isAuth: boolean ) => {
+        this.isLoading = false;
+      } );
   }
 
   onSubmit( form: NgForm ): void {
@@ -52,14 +56,15 @@ export class SignComponent implements OnInit {
     }
     this.isLoading = true;
     if ( this.mode === Mode.signUp ) {
-      const user: User = new User( null, form.value.firstName, form.value.lastName, form.value.email, form.value.password );
-      this.userService.addUser( user ).subscribe( ( isAdded: boolean ) => {
-        if ( isAdded ) {
-          this.authService.signIn( { email: user.email, password: user.password } as AuthData );
-        }
-      } );
+      const user: User = new User( null, form.value.firstName, form.value.lastName, form.value.email, null, form.value.password );
+      this.authService.signUp( user );
     } else {
-      this.authService.signIn( { email: form.value.email, password: form.value.password } as AuthData );
+      const authData: AuthData = { email: form.value.email, password: form.value.password };
+      this.authService.signIn( authData );
     }
+  }
+
+  ngOnDestroy(): void {
+    this.authListenerSub.unsubscribe();
   }
 }

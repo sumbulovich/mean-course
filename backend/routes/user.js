@@ -16,7 +16,8 @@ router.post( '/signup', ( req, res, next ) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      password: hash
+      password: hash,
+      created: new Date()
     } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
 
     User.create( user )
@@ -65,7 +66,8 @@ router.post( '/signin', ( req, res, next ) => {
       res.status( 200 ).json( {
         message: 'User logged successfully!',
         token: token,
-        refreshToken: refreshToken
+        refreshToken: refreshToken,
+        userId: fetchedUser._id
       } ); // 200 code for success
     } )
     .catch( error => {
@@ -101,6 +103,23 @@ router.post( '/token/reject', ( req, res, next ) => {
     delete tokenList[ req.body.refreshToken ]
   }
   res.status( 204 ); // 204 code for no content (no message body)
-} )
+} );
+
+/*
+ * This middleware fetch specific element
+ */
+router.get( '/:id', ( req, res, next ) => {
+  User.findById( req.params.id )
+    .then( user => {
+      if ( !user ) {
+        res.status( 404 ).json( { message: 'User not found!' } ); // 404 code for not found
+        return;
+      }
+      res.status( 200 ).json( {
+        message: 'User fetched successfully!',
+        user: user
+      } ); // 200 code for success
+    } ); // .find method is provided by Mongoose to its models
+} );
 
 module.exports = router; // Export app

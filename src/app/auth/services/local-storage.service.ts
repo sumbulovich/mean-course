@@ -24,8 +24,9 @@ export class LocalStorageService {
     const token: string = localStorage.getItem( 'token' );
     const refreshToken: string = localStorage.getItem( 'refreshToken' );
     const expiration: string = localStorage.getItem( 'expiration' );
-    if ( token && refreshToken && expiration ) {
-      return { token, refreshToken, expiration };
+    const user: string = localStorage.getItem( 'user' );
+    if ( token && refreshToken && expiration && user ) {
+      return { token, refreshToken, expiration, user };
     }
   }
 
@@ -35,6 +36,7 @@ export class LocalStorageService {
   deleteLocalStorage(): void {
     localStorage.removeItem( 'token' );
     localStorage.removeItem( 'refreshToken' );
-    localStorage.removeItem( 'expirationDate' );
+    localStorage.removeItem( 'expiration' );
+    localStorage.removeItem( 'user' );
   }
 }

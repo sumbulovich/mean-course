@@ -1,3 +1,4 @@
+import { ErrorInterceptor } from './error.interceptor';
 import { DialogsModule } from './dialogs/dialogs.module';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { MaterialModule } from './material.module';
@@ -39,7 +40,8 @@ import { MatchFieldsDirective } from './auth/match-fields/match-fields.directive
     Ng2ImgMaxModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
     // multi as true adds a new Interceptor instead to override the existing ones
   ],
   bootstrap: [ AppComponent ]

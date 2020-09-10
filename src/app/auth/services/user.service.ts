@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { API, PATHS } from './../../constants';
 import { User } from './../auth.model';
 import { Injectable } from '@angular/core';
@@ -17,12 +17,20 @@ export class UserService {
   /*
   * Add new User on the Database
   */
-  addUser( user: User ): Observable<boolean> {
+  addUser( user: User ): Observable<any> {
     return this.http
-      .post<{ message: string, user: any }>( API.ROOT + API.USERS + PATHS.AUTH.SIGN_UP, user )
-      .pipe( map( responseData => {
-        console.log( responseData.message );
-        return !!responseData.user;
-      } ) );
+      .post<{ message: string, user: any }>( API.ROOT + API.USERS + PATHS.AUTH.SIGN_UP, user );
+  }
+
+  getUser( id: string ): Observable<User> {
+    return this.http
+      .get<{ message: string, user: any }>( API.ROOT + API.USERS + '/' + id )
+      .pipe(
+        map( responseData => {
+          console.log( responseData.message );
+          const postDb = responseData.user;
+          return new User( postDb._id, postDb.firstName, postDb.lastName, postDb.email, postDb.imagePath );
+        }
+      ) );
   }
 }

@@ -1,10 +1,11 @@
+import { UserService } from './user.service';
 import { DialogData } from './../../dialogs/dialog.model';
 import { BaseDialogComponent } from './../../dialogs/dialogs.component';
 import { LocalStorageService } from './local-storage.service';
 import { Subject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { API, PATHS, TIMINGS } from './../../constants';
-import { AuthData, LocalStorageData } from './../auth.model';
+import { AuthData, LocalStorageData, User } from './../auth.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,12 +17,14 @@ import ms from 'ms';
 export class AuthService {
   private token: string;
   private tokenTimer: number;
-  private tokenListener = new Subject<string>();
+  private userId: string;
+  private authListener = new Subject<boolean>();
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private localStorageService: LocalStorageService,
+    private userService: UserService,
     private dialog: MatDialog,
   ) { }
 
@@ -33,10 +36,31 @@ export class AuthService {
   }
 
   /*
-  * Return a listener of the Authentication status updated when
+  * Return the User Authenticated
   */
-  getTokenListener(): Observable<string> {
-    return this.tokenListener.asObservable();
+  getUserId(): string {
+    return this.userId;
+  }
+
+  /*
+  * Return a listener of the Authentication
+  */
+  getAuthListener(): Observable<boolean> {
+    return this.authListener.asObservable();
+  }
+
+  /*
+  * Sign in a User and set a session Token on the Local Storage
+  */
+  signUp( user: User ): void {
+    this.userService.addUser( user ).subscribe( responseData => {
+      console.log( responseData.message );
+      const authData: AuthData = { email: user.email, password: user.password };
+      this.signIn( authData );
+    }, error => {
+      console.log( 'error signUp');
+      this.authListener.next( false );
+    } );
   }
 
   /*
@@ -44,20 +68,24 @@ export class AuthService {
   */
   signIn( authData: AuthData ): void {
     this.http
-      .post<{ message: string, token: string, refreshToken: string, expiresIn: number }>
+      .post<{ message: string, token: string, refreshToken: string, userId: string }>
       ( API.ROOT + API.USERS + PATHS.AUTH.SIGN_IN, { user: authData, expiresIn: TIMINGS.TOKEN_EXPIRATION.TIME } )
       .subscribe( responseData => {
         console.log( responseData.message );
         const expirationDate: Date = this.dateTimeConverter( ms( TIMINGS.TOKEN_EXPIRATION.TIME ) ) as Date;
         this.setToken( responseData.token, expirationDate );
-
+        this.userId = responseData.userId;
         const localStorageData: LocalStorageData = {
           token: responseData.token,
           refreshToken: responseData.refreshToken,
-          expiration: expirationDate.toISOString()
+          expiration: expirationDate.toISOString(),
+          user: responseData.userId
         };
         this.localStorageService.setLocalStorage( localStorageData );
         this.router.navigate( [ PATHS.HOME ] );
+      }, error => {
+        console.log( 'error signIn');
+        this.authListener.next( false );
       } );
   }
 
@@ -88,6 +116,10 @@ export class AuthService {
           expiration: expirationDate.toISOString()
         };
         this.localStorageService.setLocalStorage( localStorageData );
+      }, error => {
+        console.log( 'error refreshToken');
+        this.triggerExpiredTokenDialog();
+        this.signOut();
       } );
   }
 
@@ -97,11 +129,13 @@ export class AuthService {
   autoAuth(): void {
     const localStorageData: LocalStorageData = this.localStorageService.getLocalStorage();
     if ( !localStorageData ) {
+      this.authListener.next( false );
       return;
     }
     const expirationDate = new Date( localStorageData.expiration );
     if ( expirationDate > new Date() ) { // If token is not expired
       this.setToken( localStorageData.token, expirationDate );
+      this.userId = localStorageData.user;
     }
   }
 
@@ -111,6 +145,7 @@ export class AuthService {
   signOut(): void {
     this.http.post( API.ROOT + API.USERS + PATHS.AUTH.TOKEN_REJECT, this.localStorageService.getLocalStorage() );
     this.setToken( null );
+    this.userId = null;
     this.localStorageService.deleteLocalStorage();
     this.router.navigate( [ PATHS.HOME ] );
   }
@@ -119,12 +154,13 @@ export class AuthService {
   * Set a session Token and prepare the Expire Token Dialog to be trigger
   */
   private setToken( token: string, expirationDate?: Date ): void {
-    this.tokenListener.next( token );
     this.token = token;
+    this.authListener.next( !!token );
     clearTimeout( this.tokenTimer );
 
     if ( expirationDate ) {
-      const triggerDialogIn: number = this.dateTimeConverter( expirationDate ) as number - ms( TIMINGS.TOKEN_EXPIRATION.DIALOG_BEFORE );
+      const triggerDialogIn: number =
+        this.dateTimeConverter( expirationDate ) as number - ms( TIMINGS.TOKEN_EXPIRATION.DIALOG_BEFORE );
       this.tokenTimer = setTimeout( () => {
         this.triggerExpireTokenDialog( expirationDate );
       }, triggerDialogIn );
@@ -135,31 +171,27 @@ export class AuthService {
   * Open a Expiration Token Dialog with a timer
   */
   private triggerExpireTokenDialog( expirationDate: Date ): void {
-    let expiresIn: number = this.dateTimeConverter( expirationDate ) as number;
-    expiresIn = Math.floor( expiresIn / 1000 ) * 1000; // Remove decimals
-
-    const interval = ms( '1s' );
     const dialogContent = 'You will be logged out in <strong>%expireSeconds%</strong> seconds.';
+    const interval: number = ms( '1s' );
+    const expireSeconds: number = ( ms( TIMINGS.TOKEN_EXPIRATION.DIALOG_BEFORE ) ) / 1000;
     const dialogRef = this.dialog.open( BaseDialogComponent, {
       data: {
-        title: 'Your session is about to expire.',
-        content: dialogContent.replace( '%expireSeconds%', ( expiresIn / 1000 ).toString() ),
+        title: 'Your session is about to expire',
+        content: dialogContent.replace( '%expireSeconds%', expireSeconds.toString() ),
         confirmButton: { text: 'Keep me logged in', color: 'primary' }
       } as DialogData,
       disableClose: true // Whether the user can use escape or clicking on the backdrop to close the dialog.
     } );
 
-    let contDown: number;
-    dialogRef.afterOpened().subscribe( () => {
-      contDown = Number( setInterval( () => {
-        expiresIn = expiresIn - interval;
-        dialogRef.componentInstance.data.content =
-          dialogContent.replace( '%expireSeconds%', ( expiresIn / 1000 ).toString() );
-        if ( expiresIn <= 0 ) {
-          dialogRef.close();
-        }
-      }, interval ) );
-    } );
+    let expiresIn: number;
+    const contDown = Number( setInterval( () => {
+      if ( expiresIn < interval ) {
+        dialogRef.close();
+      }
+      expiresIn = expiresIn ? expiresIn - interval : this.dateTimeConverter( expirationDate ) as number;
+      dialogRef.componentInstance.data.content =
+        dialogContent.replace( '%expireSeconds%', Math.ceil( expiresIn / 1000 ).toString() );
+    }, interval ) );
 
     dialogRef.afterClosed().subscribe( ( isConfirmButton: boolean ) => {
       clearInterval( contDown );
@@ -167,13 +199,17 @@ export class AuthService {
         this.refreshToken();
         return;
       }
+      this.triggerExpiredTokenDialog();
       this.signOut();
-      this.dialog.open( BaseDialogComponent, {
-        data: {
-          content: 'Your session has expired',
-          cancelButton: { text: 'Ok' }
-        } as DialogData
-      } );
+    } );
+  }
+
+  private triggerExpiredTokenDialog(): void {
+    this.dialog.open( BaseDialogComponent, {
+      data: {
+        content: 'Your session has expired',
+        cancelButton: { text: 'Ok' }
+      } as DialogData
     } );
   }
 

@@ -9,7 +9,8 @@ const userSchema = mongoose.Schema( {
   lastName: { type: types.String, required: true },
   email: { type: types.String, required: true, unique: true },
   password: { type: types.String, required: true },
-  imagePath: types.String
+  imagePath: types.String,
+  created: { type: types.Date, required: true }
 } );
 
 userSchema.plugin( uniqueValidator ); // .plugin method is Provided by Mongoose to add extra functionalities to a schema

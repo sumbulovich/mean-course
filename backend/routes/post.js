@@ -40,7 +40,7 @@ const upload = multer( { storage: storage } );
 const deleteFile = async ( req, res, next ) => {
   const isImageDeleted = !req.body.imagePath;
   const isImageReplaced = req.files && req.files.length;
-  await Post.findById( req.params.id )
+  await Post.findOne( { _id: req.params.id,  creator: req.checkAuth.userId } )
     .then( post => {
       if ( post.imagePath && ( isImageDeleted || isImageReplaced ) ) {
         const filename = post.imagePath.split( '/' ).pop();
@@ -72,10 +72,10 @@ router.use( oneTime( createDirectories ) );
  */
 // .single( 'image' ) method is provided by Multer and extracts a single file from 'image' property
 router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
-  const imagePath = '';
+  let imagePath = '';
   if ( req.files.length ) {
-    imagePath = `${req.protocol}://${req.get( 'host' )}/
-      ${path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )}`
+    imagePath = `${req.protocol}://${req.get( 'host' )}/` +
+      path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )
   }
 
   const post = new Post( {
@@ -107,10 +107,10 @@ router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
  * The middleware router.patch update an element with new values instead
  */
 router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, next ) => {
-  const imagePath = req.body.imagePath;
+  let imagePath = req.body.imagePath;
   if ( req.files.length ) {
-    imagePath = `${req.protocol}://${req.get( 'host' )}/
-      ${path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )}`
+    imagePath = `${req.protocol}://${req.get( 'host' )}/` +
+      path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename );
   }
   const post = new Post( {
     _id: req.body.id,
@@ -119,11 +119,13 @@ router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, 
     imagePath: imagePath
   } ); // body is a new field edited by BodyParser package
 
-  Post.updateOne( { _id: req.params.id }, post )
+  Post.updateOne( { _id: req.params.id, creator: req.checkAuth.userId }, post )
     .then( result => {
-      res.status( 200 ).json( {
-        message: 'Post replaced successful!',
-      } );
+      if ( result.n === 0 ) {
+        res.status( 401 ).json( { message: 'Not authorized user!' } );
+        return;
+      }
+      res.status( 200 ).json( { message: 'Post replaced successful!' } );
     } ); // .updateOne method is provided by Mongoose to its models
 } );
 
@@ -158,9 +160,7 @@ router.get( '/:id', ( req, res, next ) => {
   Post.findById( req.params.id )
     .then( post => {
       if ( !post ) {
-        res.status( 404 ).json( {
-          message: 'Post not found!',
-        } ); // 404 code for not found
+        res.status( 404 ).json( { message: 'Post not found!' } ); // 404 code for not found
         return;
       }
       res.status( 200 ).json( {
@@ -174,11 +174,13 @@ router.get( '/:id', ( req, res, next ) => {
  * This middleware delete an element by id
  */
 router.delete( '/:id', checkAuth, deleteFile, ( req, res, next ) => {
-  Post.deleteOne( { _id: req.params.id } )
+  Post.deleteOne( { _id: req.params.id,  creator: req.checkAuth.userId } )
     .then( result => {
-      res.status( 200 ).json( {
-        message: 'Post deleted!',
-      } );
+      if ( result.n === 0 ) {
+        res.status( 401 ).json( { message: 'Not authorized user!' } );
+        return;
+      }
+      res.status( 200 ).json( { message: 'Post deleted successful!' } );
     } ); // .deleteOne method is provided by Mongoose to its models
 } );
 
