@@ -1,15 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-
-/* Bootstrap */
-// Required
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/mixins";
-// Optional
-@import "~bootstrap/scss/reboot";
-@import "~bootstrap/scss/utilities";
-@import "~bootstrap/scss/alert";
-
-/* Custom classes */
 ._cursor-pointer { cursor: pointer !important; }
 ._text-pre { white-space: pre; }
+._fixed_center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

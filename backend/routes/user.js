@@ -29,7 +29,7 @@ router.post( '/signup', ( req, res, next ) => {
       } )
       .catch( error => {
         res.status( 500 ).json( {
-          message: 'Error: User already exist!',
+          message: 'User already exist!',
         } );
       } );
   } );
@@ -51,7 +51,7 @@ router.post( '/signin', ( req, res, next ) => {
     .then( resultCompare => {
       if ( !resultCompare ) {
         res.status( 401 ).json( {
-          message: 'Authentication failed!',
+          message: 'Invalid email or password!',
         } ); // 401 code for authentication denied
         return;
       }

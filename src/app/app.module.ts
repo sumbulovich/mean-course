@@ -1,43 +1,27 @@
-import { ErrorInterceptor } from './error.interceptor';
-import { DialogsModule } from './dialogs/dialogs.module';
-import { AuthInterceptor } from './auth/auth.interceptor';
-import { MaterialModule } from './material.module';
-import { ReactiveFormsModule, FormsModule} from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
+import { SignModule } from './modules/sign/sign.module';
+import { PostModule } from './modules/post/post.module';
+import { SharedModule } from './modules/shared.module';
+import { HeaderComponent } from './core/header/header.component';
+import { AuthInterceptor, ErrorInterceptor } from './shared/interceptors';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FlexLayoutModule } from '@angular/flex-layout';
-
 import { AppComponent } from './app.component';
-import { PostCreateComponent } from './post/post-create/post-create.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HeaderComponent } from './header/header.component';
-import { PostListComponent } from './post/post-list/post-list.component';
 import { AppRoutingModule } from './app-routing.module';
-import { Ng2ImgMaxModule } from 'ng2-img-max';
-import { SignComponent } from './auth/sign/sign.component';
-import { MatchFieldsDirective } from './auth/match-fields/match-fields.directive';
+import { HomeComponent } from './core/home/home.component';
+import { ResetFieldDirective } from './shared/directives/reset-field.directive';
 
 @NgModule( {
   declarations: [
     AppComponent,
-    PostCreateComponent,
     HeaderComponent,
-    PostListComponent,
-    SignComponent,
-    MatchFieldsDirective,
+    HomeComponent
   ],
   imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    MaterialModule,
-    DialogsModule,
     HttpClientModule,
     AppRoutingModule,
-    FlexLayoutModule,
-    ReactiveFormsModule,
-    FormsModule,
-    Ng2ImgMaxModule
+    SharedModule,
+    PostModule,
+    SignModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

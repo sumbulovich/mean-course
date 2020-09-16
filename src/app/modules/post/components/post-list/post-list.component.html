@@ -1,0 +1,29 @@
+<mat-accordion *ngIf="posts.length; else noPosts">
+  <mat-expansion-panel *ngFor="let post of posts">
+    <mat-expansion-panel-header class="mat-body-strong">
+      {{post.title}}
+    </mat-expansion-panel-header>
+    <!-- Lazy rendering of the Panel's content -->
+    <ng-template matExpansionPanelContent>
+      <span class="_text-pre">{{post.content}}</span>
+    </ng-template>
+    <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2"
+      *ngIf="userId === post.creator || post.imagePath">
+      <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border"
+        *ngIf="post.imagePath">
+      <div fxLayout fxLayoutAlign="end" fxFlex="grow" *ngIf="userId === post.creator">
+        <button mat-button color="primary" [routerLink]="[PATHS.EDIT, post.id]">EDIT</button>
+        <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
+      </div>
+    </mat-action-row>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<mat-paginator [pageSize]="pageData?.pageSize" [pageSizeOptions]="[ 1, 5, 10, 25, 100 ]" [length]="pageData?.length"
+  [showFirstLastButtons]="true" (page)="onChangePage($event)"
+  class="bg-transparent" [class.invisible]="!pageData?.length" #paginator>
+</mat-paginator>
+
+<ng-template #noPosts>
+  <p fxLayout fxLayoutAlign="center" class="mat-body">No posts added yet.</p>
+</ng-template>

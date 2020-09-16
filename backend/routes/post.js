@@ -86,12 +86,18 @@ router.post( '', checkAuth, upload.array( 'image' ), ( req, res, next ) => {
     created: new Date()
   } ); // body is a new field edited by BodyParser package
 
-  Post.create( post ).then( post => {
-    res.status( 201 ).json( {
-      message: 'Post created successfully',
-      post: post
-    } ); // 201 new resource was created
-  } ); // .create method is provided by Mongoose to its models
+  Post.create( post )
+    .then( post => {
+      res.status( 201 ).json( {
+        message: 'Post created successfully',
+        post: post
+      } ); // 201 new resource was created
+    } ) // .create method is provided by Mongoose to its models
+    .catch( error => {
+      res.status( 500 ).json( {
+        message: 'Process failed!',
+      } );
+    } );
   /*
   post.save().then( post => {
     res.status( 201 ).json( {
@@ -126,7 +132,10 @@ router.put( '/:id', checkAuth, upload.array( 'image' ), deleteFile, ( req, res, 
         return;
       }
       res.status( 200 ).json( { message: 'Post replaced successful!' } );
-    } ); // .updateOne method is provided by Mongoose to its models
+    } ) // .updateOne method is provided by Mongoose to its models
+    .catch( error => {
+      res.status( 500 ).json( {  message: 'Updating post failed!' } );
+    } );
 } );
 
 /*
@@ -150,6 +159,9 @@ router.get( '', ( req, res, next ) => {
       posts: fetchedPosts,
       totalPosts: count
     } ); // 200 code for success
+  } )
+  .catch( error => {
+    res.status( 500 ).json( { message: 'Fetching posts failed!' } );
   } );
 } );
 
@@ -167,7 +179,10 @@ router.get( '/:id', ( req, res, next ) => {
         message: 'Post fetched successfully!',
         post: post
       } ); // 200 code for success
-    } ); // .find method is provided by Mongoose to its models
+    } ) // .find method is provided by Mongoose to its models
+    .catch( error => {
+      res.status( 500 ).json( { message: 'Fetching post failed!' } );
+    } );
 } );
 
 /*
@@ -181,7 +196,10 @@ router.delete( '/:id', checkAuth, deleteFile, ( req, res, next ) => {
         return;
       }
       res.status( 200 ).json( { message: 'Post deleted successful!' } );
-    } ); // .deleteOne method is provided by Mongoose to its models
+    } ) // .deleteOne method is provided by Mongoose to its models
+    .catch( error => {
+      res.status( 500 ).json( { message: 'Deleting post failed!' } );
+    } );
 } );
 
 module.exports = router; // Export router
