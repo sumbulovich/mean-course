@@ -1,5 +1,4 @@
 import { PostComponent } from './components/post.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PostCreateComponent } from './components/post-create/post-create.component';
 import { PostListComponent } from './components/post-list/post-list.component';
@@ -18,7 +17,6 @@ import { Ng2ImgMaxModule } from 'ng2-img-max';
     SharedModule,
     ReactiveFormsModule,
     PostRoutingModule,
-    BrowserAnimationsModule,
     Ng2ImgMaxModule
   ]
 })

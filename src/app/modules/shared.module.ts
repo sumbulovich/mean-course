@@ -1,15 +1,20 @@
-import { CustomBreakPointsProvider } from './../shared/constants/custom-breakpoints';
-import { DialogComponent } from './../shared/components/dialog/dialog.component';
-import { LoadingComponent } from './../shared/components/loading/loading.component';
-import { FlexLayoutModule, BREAKPOINTS, DEFAULT_BREAKPOINTS } from '@angular/flex-layout';
-import { MaterialModule } from './material.module';
 import { NgModule } from '@angular/core';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { CommonModule } from '@angular/common';
+import { MaterialModule } from './material.module';
+import {
+  FormComponent,
+  ImagePickerComponent,
+  DialogComponent,
+  LoadingComponent
+} from 'src/app/shared/components';
 
 @NgModule({
   declarations: [
     LoadingComponent,
-    DialogComponent
+    DialogComponent,
+    ImagePickerComponent,
+    FormComponent
   ],
   imports: [
     CommonModule,
@@ -21,10 +26,9 @@ import { CommonModule } from '@angular/common';
     MaterialModule,
     FlexLayoutModule,
     LoadingComponent,
-    DialogComponent
-  ],
-  providers: [
-    // CustomBreakPointsProvider
+    DialogComponent,
+    ImagePickerComponent,
+    FormComponent
   ]
 })
 export class SharedModule { }

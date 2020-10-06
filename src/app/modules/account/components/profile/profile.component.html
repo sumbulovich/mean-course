@@ -1,0 +1,40 @@
+<div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" *ngIf="user">
+  <div fxFlex.gt-xs="25">
+    <app-image-picker [imagePreview]="imagePreview" [isEditable]="form.enabled"
+      (imageChange)="onImageChange($event)" (imageError)="onImageError($event)">
+    </app-image-picker>
+  </div>
+  <mat-card fxFlex="grow" fxFlex.gt-xs="50" fxFlexOrder.xs="1">
+    <form fxLayout="column" [formGroup]="form" (submit)="onSave()">
+      <mat-form-field>
+        <input matInput placeholder="First Name" type="text" formControlName="firstName" required>
+        <mat-error *ngIf="form.get('firstName').invalid">Required</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Last Name" type="text" formControlName="lastName" required>
+        <mat-error *ngIf="form.get('lastName').invalid">Required</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Email" type="text" [value]="user.email" disabled readonly>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Password" type="password" [value]="user.password" disabled readonly>
+        <button mat-button matSuffix type="button" [routerLink]="'../'+PATHS.ACCOUNT.CHANGE_PASSWORD">Change</button>
+      </mat-form-field>
+      <div fxLayout fxLayoutAlign="space-between center">
+        <div fxLayout>
+          <mat-error [@fadeAnimation]="formErrorState">{{formErrorMessage}}</mat-error>
+          <mat-hint [@fadeAnimation]="formHintState">{{formHintMessage}}</mat-hint>
+        </div>
+        <div>
+          <button mat-raised-button type="button" *ngIf="mode === modeTypes.write" class="mr-2"
+            (click)="onCancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="form.invalid || form.disabled || isImageUploading" *ngIf="mode === modeTypes.write">Save</button>
+          <button mat-raised-button color="primary" type="button"
+            (click)="toggleForm( modeTypes.write )" *ngIf="mode === modeTypes.read">Edit</button>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+</div>

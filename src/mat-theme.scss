@@ -1,3 +1,6 @@
+/*
+ * Theming your Angular Material app
+ */
 @import '~@angular/material/theming';
 // Plus imports for other components in your app.
 
@@ -21,7 +24,7 @@ $candy-app-theme: mat-light-theme((
   color: (
     primary: $candy-app-primary,
     accent: $candy-app-accent,
-    warn: $candy-app-warn,
+    warn: $candy-app-warn
   )
 ));
 
@@ -30,8 +33,84 @@ $candy-app-theme: mat-light-theme((
 // that you are using.
 @include angular-material-theme($candy-app-theme);
 
-// Customizing Angular Material component styles
-// Add this to your global stylesheet after your theme setup
+
+/*
+ * Theming your custom component with Angular Material's theming system
+ */
+@mixin candy-text-color($config-or-theme) {
+  // Extract the color configuration in case a theme has been passed.
+  // This allows consumers to either pass a theme object or a color configuration.
+  $config: mat-get-color-config($config-or-theme);
+  // Extract the palettes you need from the theme definition.
+  $primary: map-get($config, primary);
+  $accent: map-get($config, accent);
+  $warn: map-get($config, warn);
+
+  // Define any styles affected by the theme.
+  ._mat-text {
+    &.mat-primary {
+      color: mat-color($primary) !important;
+
+      @at-root
+      a#{&}:hover {
+        color: mat-color($primary, darker) !important;
+      }
+    }
+    &.mat-accent {
+      color: mat-color($accent) !important;
+
+      @at-root
+      a#{&}:hover {
+        color: mat-color($accent, darker) !important;
+      }
+    }
+    &.mat-warn {
+      color: mat-color($warn) !important;
+
+      @at-root
+      a#{&}:hover {
+        color: mat-color($warn, darker) !important;
+      }
+    }
+  }
+}
+
+@mixin candy-text-typography($config-or-theme) {
+  // Extract the typography configuration in case a theme has been passed.
+  $config: mat-get-typography-config($config-or-theme);
+
+  ._mat-text {
+    font: {
+      family: mat-font-family($config, body-1);
+      size: mat-font-size($config, body-1);
+      weight: mat-font-weight($config, body-1);
+    }
+  }
+}
+
+@mixin candy-text-theme($theme) {
+  // Extracts the color and typography configurations from the theme.
+  $color: mat-get-color-config($theme);
+  $typography: mat-get-typography-config($theme);
+
+  // Do not generate styles if configurations for individual theming
+  // systems have been explicitly set to `null`.
+  @if $color != null {
+    @include candy-text-color($color);
+  }
+  @if $typography != null {
+    @include candy-text-typography($typography);
+  }
+}
+
+// Include theme styles for your custom components.
+@include candy-text-theme($candy-app-theme);
+
+
+/*
+* Customizing Angular Material component styles
+* Add this to your global stylesheet after your theme setup
+*/
 .mat-checkbox {
   .mat-checkbox-layout .mat-checkbox-label {
     line-height: 1.5em;

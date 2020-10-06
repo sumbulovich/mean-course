@@ -1,6 +1,6 @@
-import { Post } from './../models/post.model';
-import { Image } from '../../shared/models/image.model';
-import { API, PATHS } from '../../shared/constants/constants';
+import { environment } from './../../../environments/environment';
+import { Post, Image } from '../../shared/models';
+import { PATHS } from '../../shared/constants/globals';
 import { PageEvent } from '@angular/material/paginator';
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
@@ -8,14 +8,16 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
+const BACKEND_URL = environment.apiUrl + '/posts/';
+
 @Injectable( {
   providedIn: 'root'
 } )
 export class PostService {
   private posts: Post[] = [];
   private postsListener = new Subject<Post[]>();
-  private postListener = new Subject<boolean>();
-  private pageData: PageEvent;
+  private postListener = new Subject<Post>();
+  private pageData: PageEvent = { pageSize: 5, pageIndex: 0, length: 0 };
   constructor(
     private http: HttpClient,
     private router: Router
@@ -25,17 +27,22 @@ export class PostService {
     return this.postsListener.asObservable();
   }
 
-  getPostListener(): Observable<boolean> {
+  getPostListener(): Observable<Post> {
     return this.postListener.asObservable();
   }
 
-  getPosts( pageData: PageEvent = { pageSize: 5, pageIndex: 0, length: 0 } ): void {
-    const queryParams = `?pagesize=${pageData.pageSize}&pageindex=${pageData.pageIndex}`;
+  getPageData(): PageEvent {
+    return this.pageData;
+  }
+
+  getPosts( pageData: PageEvent ): void {
+    this.pageData = { ...this.pageData, ...pageData };
+    const queryParams = `?pagesize=${this.pageData.pageSize}&pageindex=${this.pageData.pageIndex}`;
     this.http
-      .get<{ message: string, posts: any, totalPosts: number }>( API.ROOT + API.POSTS + queryParams )
+      .get<{ message: string, posts: any, totalPosts: number, pageIndex: number }>( BACKEND_URL + queryParams )
       .pipe( map( responseData => {
         console.log( responseData.message );
-        this.pageData = { ...pageData, length: responseData.totalPosts };
+        this.pageData = { ...pageData, length: responseData.totalPosts, pageIndex: responseData.pageIndex };
         return responseData.posts.map( ( postDb: any ) => {
           if ( postDb.imagePath ) {
             postDb.imagePath = postDb.imagePath.replace('posts/', 'posts/thumbnails/');
@@ -52,7 +59,7 @@ export class PostService {
   getPost( id: string ): Observable<Post> {
     // return { ...this.posts.find( p => p.id === id ) };
     return this.http
-      .get<{ message: string, post: any }>( API.ROOT + API.POSTS + '/' + id )
+      .get<{ message: string, post: any }>( BACKEND_URL + id )
       .pipe( map( responseData => {
         console.log( responseData.message );
         const postDb = responseData.post;
@@ -61,21 +68,24 @@ export class PostService {
   }
 
   addPost( post: Post, image?: Image ): void {
-    const postData = new FormData(); // FormData object accept values and files
-    postData.append( 'title', post.title );
-    postData.append( 'content', post.content );
+    const formData = new FormData(); // FormData object accept values and files
+    formData.append( 'title', post.title );
+    formData.append( 'content', post.content );
     if ( image ) {
-      const fileName: string =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
-      postData.append( 'image', image.image, fileName);
-      postData.append( 'image', image.thumbnail, fileName);
+      console.log();
+      const fileName: string = post.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
+      formData.append( 'image', image.image, fileName);
+      formData.append( 'image', image.thumbnail, fileName);
     }
     this.http
-      .post<{ message: string, post: any }>( API.ROOT + API.POSTS, postData )
+      .post<{ message: string, post: any }>( BACKEND_URL, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
+        /*
         this.pageData.length++;
         const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
-        this.pageData.pageIndex = lastPageIndex,
+        this.pageData.pageIndex = lastPageIndex;
+        */ // Not necessary update pageData because state.pagination
         /*
         const postDb = responseData.post;
         const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
@@ -83,25 +93,25 @@ export class PostService {
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
-        this.router.navigate( [ PATHS.HOME ] );
+        this.router.navigate( [ PATHS.POSTS.ROOT ], { state: { pagination: 'last' } } );
       }, error => {
         this.postListener.next( null );
       } );
   }
 
   updatePost( post: Post, image?: Image ): void {
-    const postData = new FormData(); // FormData object accept values and files
-    postData.append( 'id', post.id );
-    postData.append( 'title', post.title );
-    postData.append( 'content', post.content );
-    postData.append( 'imagePath', post.imagePath );
+    const formData = new FormData(); // FormData object accept values and files
+    formData.append( 'id', post.id );
+    formData.append( 'title', post.title );
+    formData.append( 'content', post.content );
+    formData.append( 'imagePath', post.imagePath );
     if ( image ) {
-      const fileName: string =  post.title.toLocaleLowerCase().split( ' ' ).join( '-' ) + '-' + Date.now();
-      postData.append( 'image', image.image, fileName);
-      postData.append( 'image', image.thumbnail, fileName);
+      const fileName: string = post.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
+      formData.append( 'image', image.image, fileName);
+      formData.append( 'image', image.thumbnail, fileName);
     }
     this.http
-      .put<{ message: string }>( API.ROOT + API.POSTS + '/' + post.id, postData )
+      .put<{ message: string }>( BACKEND_URL  + post.id, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
         /*
@@ -111,13 +121,13 @@ export class PostService {
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
-        this.router.navigate( [ PATHS.HOME ] );
+        this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }, error => this.postsListener.next( null ) ); // We can use PUT or PATCH methods
   }
 
   deletePost( postId: string, pageData?: PageEvent ): void {
     this.http
-      .delete<{ message: string }>( API.ROOT + API.POSTS + '/' + postId )
+      .delete<{ message: string }>( BACKEND_URL + '/' + postId )
       .subscribe( responseData => {
         console.log( responseData.message );
         this.pageData.length--;
@@ -135,11 +145,7 @@ export class PostService {
           this.getPosts( pageData );
           return;
         } // If it's deleted from post-list
-        this.router.navigate( [ PATHS.HOME ] );
+        this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }, error => this.postListener.next( null ) );
-  }
-
-  getPageData(): PageEvent {
-    return this.pageData;
   }
 }

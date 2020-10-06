@@ -1,10 +1,15 @@
-import { AuthService, PostService, LoadingService } from './../../../../shared/services';
-import { Post } from './../../../../shared/models';
+import { AuthService, PostService, LoadingService } from 'src/app/shared/services';
+import { Post } from 'src/app/shared/models';
 import { Router } from '@angular/router';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PATHS } from 'src/app/shared/constants/constants';
+import { PATHS } from 'src/app/shared/constants/globals';
+
+enum Pagination {
+  first = 0,
+  last = -1
+}
 
 @Component( {
   selector: 'app-post-list',
@@ -14,10 +19,10 @@ import { PATHS } from 'src/app/shared/constants/constants';
 export class PostListComponent implements OnInit, OnDestroy {
   @ViewChild( 'paginator' ) paginator: MatPaginator;
   posts: Post[] = [];
-  pageData: PageEvent;
+  pageData = new PageEvent();
   userId: string;
   readonly PATHS = PATHS;
-  private resetPagination: boolean;
+  private pagination: string;
   private postsListenerSub: Subscription;
   private postListenerSub: Subscription;
   private authListenerSub: Subscription;
@@ -29,12 +34,13 @@ export class PostListComponent implements OnInit, OnDestroy {
     private loadingService: LoadingService
   ) {
     const navigationState = this.router.getCurrentNavigation().extras.state;
-    this.resetPagination = navigationState && navigationState.resetPagination;
+    this.pagination = navigationState && navigationState.pagination;
    }
 
   ngOnInit(): void {
-    if ( !this.resetPagination ) {
-      this.pageData = this.postService.getPageData();
+    this.pageData = this.postService.getPageData();
+    if ( this.pagination ) {
+      this.pageData.pageIndex = Pagination[ this.pagination ];
     }
     this.postService.getPosts( this.pageData );
     this.postsListenerSub = this.postService.getPostsListener()

@@ -1,3 +1,4 @@
+import { environment } from './../../../environments/environment';
 import { SnackBarService } from './snack-bar.service';
 import { DialogData } from '../models/dialog.model';
 import { DialogComponent } from '../components/dialog/dialog.component';
@@ -5,12 +6,14 @@ import { UserService } from './user.service';
 import { LocalStorageService } from './local-storage.service';
 import { Subject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { API, PATHS, TIMINGS } from '../constants/constants';
+import { PATHS, TIMINGS } from '../constants/globals';
 import { AuthData, LocalStorageData, User } from '../models/auth.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import ms from 'ms';
+
+const BACKEND_URL = environment.apiUrl + '/users/';
 
 @Injectable( {
   providedIn: 'root'
@@ -66,12 +69,23 @@ export class AuthService {
   /*
   * Sign in a User and set a session Token on the Local Storage
   */
+  closeAccount(): void {
+    this.userService.deleteUser().subscribe( () => {
+      this.signOut();
+    }, error => {
+      this.authListener.next( false );
+    } );
+  }
+
+  /*
+  * Sign in a User and set a session Token on the Local Storage
+  */
   signIn( authData: AuthData ): void {
     const expiresIn: number = authData.remember ?
       ms( TIMINGS.TOKEN_EXPIRATION.REMEMBER ) : ms( TIMINGS.TOKEN_EXPIRATION.DEFAULT );
     this.http
       .post<{ message: string, token: string, refreshToken: string, userId: string }>
-      ( API.ROOT + API.USERS + PATHS.AUTH.SIGN_IN, { user: authData, expiresIn } )
+      ( BACKEND_URL + 'signin', { authData, expiresIn } )
       .subscribe( responseData => {
         console.log( responseData.message );
         const expirationDate: Date = this.dateTimeConverter( expiresIn ) as Date;
@@ -107,7 +121,7 @@ export class AuthService {
 
     expiresIn = ms( TIMINGS.TOKEN_EXPIRATION.REFRESH );
     this.http.post<{ message: string, token: string, refreshToken: string, expiresIn: number }>
-      ( API.ROOT + API.USERS + PATHS.AUTH.TOKEN, { localStorage: localStorageData, expiresIn } )
+      ( BACKEND_URL + 'token', { localStorageData, expiresIn } )
       .subscribe( responseData => {
         console.log( responseData.message );
         const expirationDate: Date = this.dateTimeConverter( expiresIn ) as Date;
@@ -138,6 +152,7 @@ export class AuthService {
     if ( expirationDate > new Date() ) { // If token is not expired
       this.setToken( localStorageData.token, expirationDate );
       this.userId = localStorageData.user;
+      this.userService.setUser( localStorageData.user );
     }
   }
 
@@ -145,7 +160,7 @@ export class AuthService {
   * Sign out a User, close the session and clear the Local Storage and the refresh timer
   */
   signOut(): void {
-    this.http.post( API.ROOT + API.USERS + PATHS.AUTH.TOKEN_REJECT, this.localStorageService.getLocalStorage() );
+    this.http.post( BACKEND_URL + 'token/reject', this.localStorageService.getLocalStorage() );
     this.setToken( null );
     this.userId = null;
     this.localStorageService.deleteLocalStorage();

@@ -2,6 +2,7 @@
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins";
+@import 'mat-theme.scss';
 
 /* Custom variables and mixins updates*/
 $grid-breakpoints: (
@@ -18,3 +19,7 @@ $enable-responsive-font-sizes: true;
 @import "~bootstrap/scss/reboot";
 @import "~bootstrap/scss/utilities";
 @import "~bootstrap/scss/alert";
+
+button:focus {
+  outline: none;
+}

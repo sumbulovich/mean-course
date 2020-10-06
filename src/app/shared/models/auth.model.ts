@@ -4,6 +4,11 @@ export interface AuthData {
   remember?: boolean;
 }
 
+export interface PasswordData {
+  password: string;
+  newPassword: string;
+}
+
 export interface LocalStorageData {
   token: string;
   refreshToken: string;
@@ -19,7 +24,7 @@ export class User {
   imagePath: string;
   password: string;
 
-  constructor( id: string, firstName: string, lastName: string, email: string, imagePath?: string, password?: string ) {
+  constructor( id: string, firstName: string, lastName: string, email?: string, imagePath?: string, password?: string ) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;

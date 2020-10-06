@@ -9,27 +9,14 @@ const paths = {
   THUMBNAILS: 'thumbnails'
 } // All project paths
 
-const token = {
-  SECRET_KEY: 'GlNcAuQGzYLkvSyHvT1MkQ==', // Custom secret of private key used on the token's generation
-  SECRET_KEY_REFRESH: 'IcU0d71mA388lsYfY3LHtA==', // Custom secret of private key used on the token's generation
-} // Token data
-
-/*
- * CLASSES
- */
-class Page {
-  constructor( pageIndex, pageSize ) {
-    this.pageIndex = pageIndex,
-    this.pageSize = pageSize
-  }
-}
+const api = {
+  POSTS: '/api/posts',
+  USERS: '/api/users',
+} // All API routes
 
 module.exports = {
   CONSTANTS: {
     PATHS: paths,
-    TOKEN: token
-  },
-  CLASSES: {
-    PAGE: Page
+    API: api
   }
 }; // Export Globals

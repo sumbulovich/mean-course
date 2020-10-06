@@ -1,0 +1,8 @@
+{
+  "env": {
+    "MONGO_ATLAS_PSW": "LixcfGOg6dwrDXrB",
+    "MONGO_DB_NAME": "node-angular",
+    "JWT_SECRET_KEY": "GlNcAuQGzYLkvSyHvT1MkQ==",
+    "JWT_SECRET_KEY_REFRESH": "IcU0d71mA388lsYfY3LHtA=="
+  }
+}

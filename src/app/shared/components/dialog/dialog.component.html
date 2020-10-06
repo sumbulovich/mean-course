@@ -1,10 +1,10 @@
 <div mat-dialog-title *ngIf="data.title" [innerHtml]="data.title"></div>
 <div mat-dialog-content *ngIf="data.content" [innerHtml]="data.content"></div>
 <div mat-dialog-actions align="end" class="py-3">
+  <button mat-stroked-button mat-dialog-close (click)="onCancel()" [color]="data.cancelButton.color" *ngIf="data.cancelButton">
+    {{ data.cancelButton.text }}
+  </button>
   <button mat-flat-button mat-dialog-close (click)="onConfirm()" [color]="data.confirmButton.color" *ngIf="data.confirmButton">
     {{ data.confirmButton.text }}
-  </button>
-  <button mat-flat-button mat-dialog-close (click)="onCancel()" [color]="data.cancelButton.color" *ngIf="data.cancelButton">
-    {{ data.cancelButton.text }}
   </button>
 </div>

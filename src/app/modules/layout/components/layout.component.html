@@ -1,11 +1,11 @@
 <div fxLayout="column" fxFill>
   <app-header></app-header>
   <mat-drawer-container autosize class="h-100">
-    <mat-drawer mode="side">Drawer content</mat-drawer>
+    <mat-drawer mode="side">
+      <app-sidebar></app-sidebar>
+    </mat-drawer>
     <mat-drawer-content>
-      <main class="h-100">
-        <router-outlet></router-outlet>
-      </main>
+      <app-body></app-body>
     </mat-drawer-content>
   </mat-drawer-container>
 </div>

@@ -1,12 +1,12 @@
-import { ResetFieldDirective } from './../../../../shared/directives';
-import { User, AuthData } from '../../../../shared/models';
-import { AuthService } from '../../../../shared/services';
+import { ResetFieldDirective } from 'src/app/shared/directives';
+import { User, AuthData } from 'src/app/shared/models';
+import { AuthService } from 'src/app/shared/services';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { Component, OnInit, ViewChild, OnDestroy, ViewChildren, QueryList } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { PATHS } from 'src/app/shared/constants/constants';
+import { PATHS , PASSWORD_PATTERN} from 'src/app/shared/constants/globals';
 
 enum Mode {
   signIn = 'Log in',
@@ -26,12 +26,10 @@ export class SignComponent implements OnInit, OnDestroy {
   modeTypes = Mode;
   mode: Mode;
   passwordPattern: RegExp;
-  hidePassword = true;
-  hideConfirmPassword = true;
+  isShowPassword: boolean[] = [];
   readonly PATHS = PATHS;
   private authListenerSub: Subscription;
   private form: NgForm;
-  private readonly RESET_FORM_CONTROLS = [ 'password', 'confirmPassword', 'accept' ];
 
   constructor(
     private authService: AuthService,
@@ -39,9 +37,9 @@ export class SignComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.mode = this.router.url === PATHS.AUTH.SIGN_UP ? Mode.signUp : Mode.signIn;
+    this.mode = this.router.url === '/' + PATHS.AUTH.SIGN_UP ? Mode.signUp : Mode.signIn;
     if ( this.mode === Mode.signUp ) {
-      this.passwordPattern = new RegExp( '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$' );
+      this.passwordPattern = new RegExp( PASSWORD_PATTERN );
     }
     this.authListenerSub = this.authService.getAuthListener()
       .subscribe( () => {

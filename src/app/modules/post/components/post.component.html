@@ -1,9 +1,9 @@
 <mat-toolbar class="border-bottom shadow-sm h-auto py-2"
-  fxLayout fxLayoutAlign="space-between" *ngIf="isAuthenticated && mode === modeTypes.list">
+  fxLayout fxLayoutAlign="space-between" *ngIf="isAuthenticated && isToolbar">
   <div>
   </div>
   <div>
-    <button mat-mini-fab color="primary" [routerLink]="PATHS.CREATE" routerLinkActive #rlaAdd="routerLinkActive"
+    <button mat-mini-fab color="primary" [routerLink]="PATHS.POSTS.CREATE" routerLinkActive #rlaAdd="routerLinkActive"
       [disabled]="rlaAdd.isActive" *ngIf="mode === modeTypes.list">
       <mat-icon class="shadow-none">add</mat-icon>
     </button>

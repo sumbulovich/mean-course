@@ -1,0 +1,20 @@
+<mat-toolbar color="primary">
+ <a [routerLink]="PATHS.HOME" class="text-light text-decoration-none">Main Course</a>
+ <div flexLayout fxFlex fxLayoutAlign="end none">
+   <nav>
+      <a class="mat-body-strong text-decoration-none text-white mr-3" [routerLink]="PATHS.AUTH.SIGN_IN" *ngIf="!isAuthenticated">Log in</a>
+      <button mat-flat-button color="accent" [routerLink]="PATHS.AUTH.SIGN_UP" *ngIf="!isAuthenticated">Sing Up</button>
+      <button mat-mini-fab color="accent" [matMenuTriggerFor]="menu" *ngIf="isAuthenticated" aria-label="menu">
+        <mat-icon>person</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item [routerLink]="PATHS.ACCOUNT.ROOT">
+          <mat-icon>account_circle</mat-icon> Account
+        </button>
+        <button mat-menu-item (click)="onSignOut()">
+          <mat-icon>power_settings_new</mat-icon> Log out
+        </button>
+      </mat-menu>
+  </nav>
+</div>
+</mat-toolbar>

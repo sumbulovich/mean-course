@@ -9,12 +9,14 @@ const userRoutes = require( './routes/user' ); // Import User routes
 
 const app = express(); // Create Express app
 
-const PATHS = globals.CONSTANTS.PATHS;
-
 // <password>: LixcfGOg6dwrDXrB
 // <dbname>: node-angular
 mongoose.connect(
-  'mongodb+srv://sumbulovich:LixcfGOg6dwrDXrB@cluster0.rqulk.mongodb.net/node-angular?retryWrites=true&w=majority',
+  'mongodb+srv://sumbulovich:' +
+  process.env.MONGO_ATLAS_PSW +
+  '@cluster0.rqulk.mongodb.net/' +
+  process.env.MONGO_DB_NAME +
+  '?retryWrites=true&w=majority',
   {
     useUnifiedTopology: true,
     useNewUrlParser: true
@@ -46,6 +48,7 @@ app.use( bodyParser.urlencoded( { extended: false } ) );
 /*
  * This middleware makes accecible /images path linking it to /image folder accesible
  */
+const PATHS = globals.CONSTANTS.PATHS;
 app.use(
   path.join( '/', PATHS.IMAGES, PATHS.POSTS ),
   express.static( path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.POSTS ) )
@@ -53,6 +56,14 @@ app.use(
 app.use(
   path.join( '/', PATHS.IMAGES, PATHS.POSTS, PATHS.THUMBNAILS ),
   express.static( path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.POSTS, PATHS.THUMBNAILS ) )
+);
+app.use(
+  path.join( '/', PATHS.IMAGES, PATHS.USERS ),
+  express.static( path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.USERS ) )
+);
+app.use(
+  path.join( '/', PATHS.IMAGES, PATHS.USERS, PATHS.THUMBNAILS ),
+  express.static( path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.USERS, PATHS.THUMBNAILS ) )
 );
 /*
  * This middleware defines the Headers of the server
@@ -76,7 +87,8 @@ app.use( (req, res, next ) => {
   next();
 } );
 
-app.use( '/api/' + PATHS.POSTS, postRoutes ); // Use Post routes with the path '/api/post'
-app.use( '/api/' + PATHS.USERS, userRoutes ); // Use User routes with the path '/api/user'
+const API = globals.CONSTANTS.API;
+app.use( API.POSTS, postRoutes ); // Use Post routes with the path '/api/post'
+app.use( API.USERS, userRoutes ); // Use User routes with the path '/api/user'
 
 module.exports = app; // Export app

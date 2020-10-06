@@ -11,23 +11,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule } from '@angular/material/list';
+
+
 
 @NgModule( {
   declarations: [],
-  imports: [
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatToolbarModule,
-    MatExpansionModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatPaginatorModule,
-    MatCheckboxModule,
-    MatSidenavModule,
-    MatDialogModule,
-    MatSnackBarModule
-  ],
+  imports: [], // The import of exported modules is done automatically by Angular
   exports: [
     MatInputModule,
     MatButtonModule,
@@ -40,7 +31,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatCheckboxModule,
     MatSidenavModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatMenuModule,
+    MatListModule
   ]
 } )
 export class MaterialModule { }

@@ -2,8 +2,8 @@
   <mat-card fxLayout="column" fxFlex="350px" fxFlex.lt-sm="100%"
     class="mx-auto mt-sm-5 p-4" ngClass.lt-sm="rounded-0">
     <p class="mat-body-strong text-center">{{modeTypes[mode]}}</p>
-    <form fxLayout="column" (submit)="onSubmit(signForm)"
-      #signForm="ngForm" [appMatchFields]="['password', 'confirmPassword']">
+    <form fxLayout="column" (submit)="onSubmit(form)"
+      #form="ngForm" [appMatchFields]="['password', 'confirmPassword']">
       <ng-container *ngIf="mode === modeTypes.signUp">
         <mat-form-field appearance="outline" hideRequiredMarker>
           <mat-label>First Name</mat-label>
@@ -28,11 +28,11 @@
       </mat-form-field>
       <mat-form-field appearance="outline" hideRequiredMarker>
         <mat-label>Password</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" name="password" appResetField
+        <input matInput [type]="isShowPassword[0] ? 'text' : 'password'" name="password" appResetField
           ngModel #passwordInput="ngModel" minlength="8" maxlength="32" [pattern]="passwordPattern" required>
-        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword"
-          [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
-          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="isShowPassword[0] = !isShowPassword[0]"
+          [attr.aria-label]="(isShowPassword[0] ? 'Hide' : 'Show') + 'password'" [attr.aria-pressed]="isShowPassword[0]">
+          <mat-icon>{{isShowPassword[0] ? 'visibility' : 'visibility_off'}}</mat-icon>
         </button>
         <mat-error *ngIf="passwordInput.errors?.required">Required.</mat-error>
         <mat-error *ngIf="passwordInput.errors?.minlength">Password must be at least 8 characters.</mat-error>
@@ -44,11 +44,11 @@
       <ng-container *ngIf="mode === modeTypes.signUp">
         <mat-form-field appearance="outline" hideRequiredMarker>
           <mat-label>Confirm Password</mat-label>
-          <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" name="confirmPassword" appResetField
+          <input matInput [type]="isShowPassword[1] ? 'text' : 'password' " name="confirmPassword" appResetField
             ngModel #confirmPasswordInput="ngModel" maxlength="32" required>
-          <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword"
-            [attr.aria-label]="'Hide confirm password'" [attr.aria-pressed]="hideConfirmPassword">
-            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="isShowPassword[1] = !isShowPassword[1]"
+            [attr.aria-label]="(isShowPassword[1] ? 'Hide' : 'Show') + 'password'" [attr.aria-pressed]="isShowPassword[1]">
+            <mat-icon>{{isShowPassword[1] ? 'visibility' : 'visibility_off'}}</mat-icon>
           </button>
           <mat-error *ngIf="confirmPasswordInput.errors?.required">Required</mat-error>
           <mat-error *ngIf="confirmPasswordInput.errors?.misMatch">Passwords must match.</mat-error>
@@ -69,7 +69,7 @@
         </div>
       </ng-container>
 
-      <button class="mt-2" mat-raised-button color="primary" type="submit" [disabled]="signForm.disabled">
+      <button class="mt-2" mat-raised-button color="primary" type="submit" [disabled]="form.disabled">
         {{modeTypes[mode]}}
       </button>
       <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signUp">

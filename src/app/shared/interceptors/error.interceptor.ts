@@ -6,13 +6,12 @@ import {
   HttpHandler,
   HttpEvent,
   HttpInterceptor,
-  HttpErrorResponse
+  HttpErrorResponse, HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
+class ErrorInterceptor implements HttpInterceptor {
 
   constructor( private snackBarService: SnackBarService ) { }
 
@@ -28,3 +27,9 @@ export class ErrorInterceptor implements HttpInterceptor {
     );
   }
 }
+
+export const ErrorInterceptorProvider = {
+  provide: HTTP_INTERCEPTORS,
+  useClass: ErrorInterceptor,
+  multi: true
+}; // multi as true adds a new Interceptor instead to override the existing ones

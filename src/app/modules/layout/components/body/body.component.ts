@@ -1,18 +1,15 @@
-import { LoadingService } from './../../shared/services/loading.service';
-import { AuthService } from './../../shared/services/auth.service';
+import { AuthService, LoadingService, SnackBarService } from 'src/app/shared/services';
 import { filter } from 'rxjs/operators';
-import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { Router, NavigationEnd, RouterEvent, NavigationStart } from '@angular/router';
+import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { MatSnackBarRef } from '@angular/material/snack-bar';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 
 @Component( {
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: [ './home.component.scss' ]
+  selector: 'app-body',
+  templateUrl: './body.component.html',
+  styleUrls: [ './body.component.scss' ]
 } )
-export class HomeComponent implements OnInit {
+export class BodyComponent implements OnInit {
   private snackBarRef: MatSnackBarRef<any>;
 
   constructor(

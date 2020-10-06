@@ -4,12 +4,12 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor, HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+class AuthInterceptor implements HttpInterceptor {
 
   constructor( private authService: AuthService ) { }
 
@@ -23,3 +23,10 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle( authRequest );
   }
 }
+
+export const AuthInterceptorProvider = {
+  provide: HTTP_INTERCEPTORS,
+  useClass: AuthInterceptor,
+  multi: true
+}; // multi as true adds a new Interceptor instead to override the existing ones
+

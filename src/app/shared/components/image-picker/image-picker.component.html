@@ -1,0 +1,14 @@
+<div fxLayout="column" fxFill>
+  <div fxFlex="grow" fxLayoutAlign="center center" class="border"
+    [class._cursor-pointer]="isEditable && !isCompressing" (click)="filePicker.click()">
+    <img class="w-100" [src]="imagePreview" alt="image-preview" *ngIf="imagePreview && !isCompressing">
+    <mat-hint *ngIf="isCompressing">Uploading...</mat-hint>
+    <mat-icon [inline]="true" class="text-muted my-3 _img-placeholder"  *ngIf="!imagePreview">add_photo_alternate</mat-icon>
+  </div>
+  <button mat-stroked-button type="button" (click)="filePicker.click()" class="bg-white rounded-0 border-top-0"
+    *ngIf="isEditable && !imagePreview">Pick Image</button>
+    <button mat-stroked-button color="warn" type="button" (click)="onDeleteImage()" class="bg-white rounded-0 border-top-0"
+    *ngIf="isEditable && imagePreview" [disabled]="isCompressing">Delete Image</button>
+  <input type="file" accept="image/*" class="invisible position-absolute"
+    [disabled]="!isEditable || isCompressing" (change)="onImagePicked($event)" #filePicker>
+</div>

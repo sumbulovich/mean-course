@@ -1,32 +1,24 @@
+import { AccountModule } from './modules/account/account.module';
+import { AppRoutingModule } from './app-routing.module';
+import { HomeModule } from './modules/home/home.module';
+import { LayoutModule } from './modules/layout/layout.module';
+import { CoreModule } from './modules/core.module';
 import { SignModule } from './modules/sign/sign.module';
 import { PostModule } from './modules/post/post.module';
-import { SharedModule } from './modules/shared.module';
-import { HeaderComponent } from './core/header/header.component';
-import { AuthInterceptor, ErrorInterceptor } from './shared/interceptors';
 import { NgModule } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-import { HomeComponent } from './core/home/home.component';
-import { ResetFieldDirective } from './shared/directives/reset-field.directive';
 
 @NgModule( {
   declarations: [
-    AppComponent,
-    HeaderComponent,
-    HomeComponent
+    AppComponent
   ],
   imports: [
-    HttpClientModule,
-    AppRoutingModule,
-    SharedModule,
+    CoreModule,
+    LayoutModule,
+    HomeModule,
     PostModule,
-    SignModule
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
-    // multi as true adds a new Interceptor instead to override the existing ones
+    SignModule,
+    AccountModule
   ],
   bootstrap: [ AppComponent ]
 } )

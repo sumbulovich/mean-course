@@ -1,0 +1,26 @@
+<mat-drawer-container autosize class="h-100">
+  <mat-drawer fixedInViewport="true"
+    [attr.role]="isDrawer ? 'dialog' : 'navigation'"
+    [mode]="isDrawer ? 'over' : 'side'"
+    [opened]="!isDrawer">
+    <mat-nav-list role="navigation">
+      <mat-list-item [routerLink]="PATHS.ACCOUNT.PROFILE"
+        routerLinkActive #profile="routerLinkActive" [disabled]="profile.isActive">
+        Profile
+      </mat-list-item>
+      <mat-list-item [routerLink]="PATHS.ACCOUNT.CHANGE_PASSWORD"
+        routerLinkActive #changePassword="routerLinkActive" [disabled]="changePassword.isActive">
+        Change Password
+      </mat-list-item>
+      <mat-list-item [routerLink]="PATHS.ACCOUNT.CLOSE_ACCOUNT"
+        routerLinkActive #closeAccount="routerLinkActive" [disabled]="closeAccount.isActive">
+        Close Account
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="pt-sm-4 px-sm-4">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

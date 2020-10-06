@@ -1,15 +1,17 @@
+import { PATHS } from 'src/app/shared/constants/globals';
 import { PostComponent } from './components/post.component';
 import { PostListComponent } from './components/post-list/post-list.component';
-import { AuthGuard } from './../../shared/guards';
+import { AuthGuard } from 'src/app/shared/guards';
 import { Routes, RouterModule } from '@angular/router';
 import { PostCreateComponent } from './components/post-create/post-create.component';
 import { NgModule } from '@angular/core';
 
+
 const routes: Routes = [
-  { path: '', component: PostComponent, children: [
-    { path: '', component: PostListComponent },
-    { path: 'create', component: PostCreateComponent, canActivate: [ AuthGuard ] },
-    { path: 'edit/:postId', component: PostCreateComponent, canActivate: [ AuthGuard ] }
+  { path: PATHS.POSTS.ROOT, component: PostComponent, children: [
+    { path: PATHS.POSTS.LIST, component: PostListComponent },
+    { path: PATHS.POSTS.CREATE, component: PostCreateComponent, canActivate: [ AuthGuard ] },
+    { path: PATHS.POSTS.EDIT + '/:postId', component: PostCreateComponent, canActivate: [ AuthGuard ] }
   ] }
 ];
 
