@@ -91,7 +91,7 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
         content: this.form.value.content.trim(),
         imagePath: this.imagePreview,
       } };
-      if ( JSON.stringify( this.post ) !== JSON.stringify( post ) ) {
+      if ( JSON.stringify( this.post ) !== JSON.stringify( post ) || this.image ) {
         this.postService.updatePost( post, this.image );
         this.form.disable();
       }  else {

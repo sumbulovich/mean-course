@@ -1,5 +1,8 @@
 const mongoose = require( 'mongoose' ); // Import Mongoose package
 
+mongoose.set( 'useFindAndModify', false );
+// Fix Deprecation Warning on `findOneAndUpdate()` and `findOneAndDelete()` methods
+
 const types = mongoose.Schema.Types;
 const postSchema = mongoose.Schema({
   title: { type: types.String, required: true },

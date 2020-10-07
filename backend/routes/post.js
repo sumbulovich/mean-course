@@ -21,7 +21,7 @@ router.post( '', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
 
 router.put(
   '/:id', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
-  postController.findPost, fileService.deleteFile( FILE_PATH_MAP ), postController.updatePost
+  postController.updatePost, fileService.deleteFile( FILE_PATH_MAP )
 );
 // .put replace an element by a new one
 // .patch update an element with new values
@@ -30,9 +30,6 @@ router.get( '', postController.getPosts );
 
 router.get( '/:id', postController.getPost );
 
-router.delete(
-  '/:id', authService.checkToken,
-  postController.findPost, fileService.deleteFile( FILE_PATH_MAP ), postController.deletePost
-);
+router.delete( '/:id', authService.checkToken, postController.deletePost, fileService.deleteFile( FILE_PATH_MAP ) );
 
 module.exports = router; // Export router

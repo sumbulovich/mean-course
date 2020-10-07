@@ -2,6 +2,8 @@ const mongoose = require( 'mongoose' ); // Import Mongoose package
 const uniqueValidator = require( 'mongoose-unique-validator' ); // Import Mongoose Unique Validator package
 
 mongoose.set( 'useCreateIndex', true ); // Fix Deprecation Warning when is set a 'unique' field
+mongoose.set( 'useFindAndModify', false );
+// Fix Deprecation Warning on `findOneAndUpdate()` and `findOneAndDelete()` methods
 
 const types = mongoose.Schema.Types;
 const userSchema = mongoose.Schema( {

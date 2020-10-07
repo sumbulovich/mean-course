@@ -8,21 +8,21 @@ const PATHS = globals.CONSTANTS.PATHS;
  * This middleware creates a new element
  */
 exports.createPost = ( req, res, next ) => {
-  let imagePath = '';
+  let postImagePath = '';
   if ( req.files.length ) {
-    imagePath = `${req.protocol}://${req.get( 'host' )}/` +
+    postImagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )
   }
 
-  const post = new Post( {
+  const newPost = new Post( {
     title: req.body.title,
     content: req.body.content,
-    imagePath: imagePath,
+    imagePath: postImagePath,
     creator: req.data.tokenPayload.userId,
     created: new Date()
   } ); // body is a new field edited by BodyParser package
 
-  Post.create( post )
+  Post.create( newPost )
     .then( post => {
       res.status( 201 ).json( {
         message: 'Post created successfully',
@@ -53,20 +53,22 @@ exports.updatePost = ( req, res, next ) => {
     imagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename );
   }
-  const post = new Post( {
+  const newPost = new Post( {
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
     imagePath: imagePath
   } ); // body is a new field edited by BodyParser package
-
-  Post.updateOne( { _id: req.params.id, creator: req.data.tokenPayload.userId }, post )
-    .then( result => {
-      if ( result.n === 0 ) {
+  const query = { _id: req.params.id, creator: req.data.tokenPayload.userId };
+  Post.findOneAndUpdate( query, newPost )
+    .then( post => {
+      if ( !post ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
+      req.data = { ...req.data, ...{ find: post } };
       res.status( 200 ).json( { message: 'Post replaced successful!' } );
+      next();
     } ) // .updateOne method is provided by Mongoose to its models
     .catch( error => {
       res.status( 500 ).json( {  message: 'Updating Post failed!' } );
@@ -77,26 +79,26 @@ exports.updatePost = ( req, res, next ) => {
  * This middleware fetch initial elements
  */
 exports.getPosts = ( req, res, next ) => {
-  const page = { pageIndex: +req.query.pageindex, pageSize: +req.query.pagesize };
   let totalPosts;
+  const queryData = { pageIndex: +req.query.pageindex, pageSize: +req.query.pagesize };
   Post.countDocuments() // .count method is provided by Mongoose to count the number of entries
     .then( count => {
       totalPosts = count;
-      const postQuery = Post.find(); // .find method is provided by Mongoose to its models
-      if( page.pageSize ) {
-        page.pageIndex = page.pageIndex >= 0 ? page.pageIndex : Math.ceil( totalPosts / page.pageSize ) - 1;
-        postQuery
-          .skip( page.pageSize * page.pageIndex )
-          .limit( page.pageSize );
+      const findQuery = Post.find(); // .find method is provided by Mongoose to its models
+      if( queryData.pageSize ) {
+        queryData.pageIndex = queryData.pageIndex >= 0 ? queryData.pageIndex : Math.ceil( totalPosts / queryData.pageSize ) - 1;
+        findQuery
+          .skip( queryData.pageSize * queryData.pageIndex )
+          .limit( queryData.pageSize );
       }
-      return postQuery;
+      return findQuery;
     } )
     .then( posts => { // It's possible chain multiple promises
       res.status( 200 ).json( {
         message: 'Posts fetched successfully!',
         posts: posts,
         totalPosts: totalPosts,
-        pageIndex: page.pageIndex
+        pageIndex: queryData.pageIndex
       } ); // 200 code for success
     } )
     .catch( error => {
@@ -108,7 +110,8 @@ exports.getPosts = ( req, res, next ) => {
  * This middleware fetch a specific element
  */
 exports.getPost = ( req, res, next ) => {
-  Post.findById( req.params.id )
+  const queryData = req.params.id;
+  Post.findById( queryData )
     .then( post => {
       if ( !post ) {
         res.status( 404 ).json( { message: 'Post not found!' } ); // 404 code for not found
@@ -125,30 +128,19 @@ exports.getPost = ( req, res, next ) => {
 }
 
 /*
- * This middleware find a specific element
- */
-exports.findPost = ( req, res, next ) => {
-  Post.findById( req.params.id )
-    .then( post => {
-      req.data = { ...req.data, ...{ find: post } };
-      next();
-    } ) // .find method is provided by Mongoose to its models
-    .catch( error => {
-      res.status( 500 ).json( { message: 'Finding Post failed!' } );
-    } );
-}
-
-/*
  * This middleware delete a specific element
  */
 exports.deletePost = ( req, res, next ) => {
-  Post.deleteOne( { _id: req.params.id,  creator: req.data.tokenPayload.userId } )
-    .then( result => {
-      if ( result.n === 0 ) {
+  const queryData = { _id: req.params.id,  creator: req.data.tokenPayload.userId };
+  Post.findOneAndDelete( queryData )
+    .then( post => {
+      if ( !post ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
+      req.data = { ...req.data, ...{ find: post } };
       res.status( 200 ).json( { message: 'Post deleted successful!' } );
+      next();
     } ) // .deleteOne method is provided by Mongoose to its models
     .catch( error => {
       res.status( 500 ).json( { message: 'Deleting Post failed!' } );

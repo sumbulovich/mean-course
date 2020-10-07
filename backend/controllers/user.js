@@ -12,7 +12,7 @@ const tokenList = {}
  */
 exports.createUser = ( req, res, next ) => {
   bcrypt.hash( req.body.password, 10 ).then( hash => {
-    const user = new User( {
+    const newUser = new User( {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
@@ -20,8 +20,7 @@ exports.createUser = ( req, res, next ) => {
       passwordLength: req.body.password.length,
       created: new Date()
     } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
-
-    User.create( user )
+    User.create( newUser )
       .then( user => {
         res.status( 200 ).json( {
           message: 'User created successfully',
@@ -41,29 +40,27 @@ exports.createUser = ( req, res, next ) => {
  */
 exports.signUser = ( req, res, next ) => {
   let fetchedUser;
-  User.findOne( { email: req.body.authData.email } )
+  const queryData = { email: req.body.authData.email };
+  User.findOne( queryData )
     .then( user => {
-      if ( user ) {
-        fetchedUser = user;
-        return bcrypt.compare( req.body.authData.password, user.password );
-        // .compare is a method provided by Bcrypt to compare encrypted passwords returning a boolean
+      if ( !user ) {
+        return;
       }
+      fetchedUser = user;
+      return bcrypt.compare( req.body.authData.password, user.password );
+      // .compare is a method provided by Bcrypt to compare encrypted passwords returning a boolean
     } )
     .then( resultCompare => {
       if ( !resultCompare ) {
-        res.status( 401 ).json( {
-          message: 'Invalid email or password!',
-        } ); // 401 code for authentication denied
+        res.status( 401 ).json( { message: 'Invalid email or password!' } ); // 401 code for authentication denied
         return;
       }
-
-      const payload = { email: fetchedUser.email, userId: fetchedUser._id }; // Payload to sign
-      const options = { expiresIn: req.body.expiresIn } // expiresIn to define a expiration time
-      const token = jwt.sign( payload, process.env.JWT_SECRET_KEY, options );
-      const refreshToken = jwt.sign( payload, process.env.JWT_SECRET_KEY_REFRESH, options );
+      const tokenPayload = { email: fetchedUser.email, userId: fetchedUser._id }; // Payload to sign
+      const tokenOptions = { expiresIn: req.body.expiresIn } // expiresIn to define a expiration time
+      const token = jwt.sign( tokenPayload, process.env.JWT_SECRET_KEY, tokenOptions );
+      const refreshToken = jwt.sign( tokenPayload, process.env.JWT_SECRET_KEY_REFRESH, tokenOptions );
       // .sign method provided by JsonWebToken to create a token based in some inputs of our choice
       tokenList[ refreshToken ] = token; // Save Token on a token's list
-
       res.status( 200 ).json( {
         message: 'User logged successfully!',
         token: token,
@@ -82,25 +79,28 @@ exports.signUser = ( req, res, next ) => {
  * This middleware replace update an element
  */
 exports.updateUser = ( req, res, next ) => {
-  let imagePath = req.body.imagePath;
+  let userImagePath = req.body.imagePath;
   if ( req.files.length ) {
-    imagePath = `${req.protocol}://${req.get( 'host' )}/` +
+    userImagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.USERS, req.files[0].filename );
   }
-  const user = new User( {
+  const newUser = new User( {
     _id: req.body.id,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
-    imagePath: imagePath
+    imagePath: userImagePath
   } ); // body is a new field edited by BodyParser package
 
-  User.updateOne( { _id: req.params.id }, user )
-    .then( result => {
-      if ( result.n === 0 ) {
+  const queryData = { _id: req.params.id };
+  User.findOneAndUpdate( queryData, newUser )
+    .then( post => {
+      if ( !post ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
+      req.data = { ...req.data, ...{ find: post } };
       res.status( 200 ).json( { message: 'User updated successful!' } );
+      next();
     } ) // .updateOne method is provided by Mongoose to its models
     .catch( error => {
       res.status( 500 ).json( {  message: 'Updating User failed!' } );
@@ -114,23 +114,27 @@ exports.updateUserPassword = ( req, res, next ) => {
   let fetchedUser;
   User.findById( req.params.id )
     .then( user => {
-      if ( user ) {
-        fetchedUser = user;
-        return bcrypt.compare( req.body.password, user.password );
-        // .compare is a method provided by Bcrypt to compare encrypted passwords returning a boolean
+      if ( !user ) {
+        return;
       }
+      fetchedUser = user;
+      return bcrypt.compare( req.body.password, user.password );
+      // .compare is a method provided by Bcrypt to compare encrypted passwords returning a boolean
     } )
     .then( resultCompare => {
       if ( !resultCompare ) {
-        res.status( 401 ).json( {
-          message: 'Invalid password!',
-        } ); // 401 code for authentication denied
-        return bcrypt.hash( req.body.newPassword, 10 );
+        return;
       }
+      return bcrypt.hash( req.body.newPassword, 10 );
     } )
     .then( hash => {
+      if ( !hash ) {
+        res.status( 401 ).json( { message: 'Invalid password!' } ); // 401 code for authentication denied
+        return;
+      }
       fetchedUser.password = hash;
-      User.updateOne( { _id: req.params.id }, fetchedUser )
+      const queryData = { _id: req.params.id };
+      User.updateOne( queryData , fetchedUser )
         .then( result => {
           if ( result.n === 0 ) {
             res.status( 401 ).json( { message: 'Not authorized user!' } );
@@ -143,9 +147,7 @@ exports.updateUserPassword = ( req, res, next ) => {
         } );
     } )
     .catch( error => {
-      res.status( 401 ).json( {
-        message: 'Authentication failed!',
-      } ); // 401 code for authentication denied
+      res.status( 401 ).json( { message: 'Authentication failed!' } ); // 401 code for authentication denied
     } );
 }
 
@@ -153,7 +155,8 @@ exports.updateUserPassword = ( req, res, next ) => {
  * This middleware fetch specific element
  */
 exports.getUser = ( req, res, next ) => {
-  User.findById( req.params.id )
+  const queryData = req.params.id;
+  User.findById( queryData )
     .then( user => {
       if ( !user ) {
         res.status( 404 ).json( { message: 'User not found!' } ); // 404 code for not found
@@ -169,27 +172,15 @@ exports.getUser = ( req, res, next ) => {
 /*
  * This middleware find a specific element
  */
-exports.findUser = ( req, res, next ) => {
-  User.findById( req.params.id )
-    .then( user => {
-      req.data.find = user
-      next();
-    } ) // .find method is provided by Mongoose to its models
-    .catch( error => {
-      res.status( 500 ).json( { message: 'Finding User failed!' } );
-    } );
-}
-
-/*
- * This middleware find a specific element
- */
 exports.deleteUser = ( req, res, next ) => {
-  User.deleteOne( { _id: req.params.id } )
-    .then( result => {
-      if ( result.n === 0 ) {
+  const queryData = { _id: req.params.id };
+  User.findOneAndDelete( queryData )
+    .then( user => {
+      if ( !user ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
+      req.data = { ...req.data, ...{ find: user } };
       res.status( 200 ).json( { message: 'User deleted successful!' } );
     } ) // .deleteOne method is provided by Mongoose to its models
     .catch( error => {
@@ -215,9 +206,7 @@ exports.refreshToken = ( req, res, next ) => {
       token: token
     } ); // 200 code for success
   } else {
-    res.status( 401 ).json( {
-      message: 'Authentication failed!',
-    } ); // 401 code for authentication denied
+    res.status( 401 ).json( { message: 'Authentication failed!' } ); // 401 code for authentication denied
   }
 }
 

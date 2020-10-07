@@ -73,10 +73,9 @@ export class ProfileComponent extends FormComponent implements OnInit {
       lastName: this.form.value.lastName.trim(),
       imagePath: this.imagePreview,
     } };
-    if ( JSON.stringify( this.user ) !== JSON.stringify( user ) ) {
+    if ( JSON.stringify( this.user ) !== JSON.stringify( user ) || this.image ) {
       this.userService.updateUser( user, this.image );
     } // If there is changes
-
     this.toggleForm( Mode.read );
   }
 }

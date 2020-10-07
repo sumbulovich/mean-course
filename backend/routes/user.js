@@ -23,7 +23,7 @@ router.post( '/signin', userController.signUser );
 
 router.put(
   '/:id', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
-  userController.findUser, fileService.deleteFile( FILE_PATH_MAP ), userController.updateUser
+  userController.updateUser, fileService.deleteFile( FILE_PATH_MAP ),
 );
 
 router.put( '/password/:id', authService.checkToken, userController.updateUserPassword );
@@ -32,10 +32,7 @@ router.put( '/password/:id', authService.checkToken, userController.updateUserPa
 
 router.get( '/:id', userController.getUser );
 
-router.delete(
-  '/:id', authService.checkToken,
-  userController.findUser, fileService.deleteFile( FILE_PATH_MAP ), userController.deleteUser
-);
+router.delete( '/:id', authService.checkToken, userController.deleteUser, fileService.deleteFile( FILE_PATH_MAP ) );
 
 router.post( '/token', userController.refreshToken );
 
