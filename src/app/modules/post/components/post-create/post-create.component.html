@@ -4,7 +4,7 @@
       (imageChange)="onImageChange($event)" (imageError)="onImageError($event)">
     </app-image-picker>
   </div>
-  <mat-card fxFlex="grow" fxFlex.gt-xs="50" fxFlexOrder.xs="1">
+  <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-xs="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
     <!-- <form (submit)="onSavePost(postForm)" #postForm="ngForm" fxLayout="column"> -->
     <form [formGroup]="form" (submit)="onSave()" fxLayout="column" fxLayoutAlign="space-between" fxFill>
       <div fxLayout="column">

@@ -1,10 +1,18 @@
-<div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" *ngIf="user">
+<div fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" *ngIf="user">
   <div fxFlex.gt-xs="25">
-    <app-image-picker [imagePreview]="imagePreview" [isEditable]="form.enabled"
-      (imageChange)="onImageChange($event)" (imageError)="onImageError($event)">
+    <app-image-picker
+      [imagePreview]="imagePreview"
+      [isEditable]="form.enabled"
+      [class]="'rounded-circle border'"
+      [placeholderClass]="'bg-secondary text-white'"
+      [buttonClass]="'my-3'"
+      [placeholderIcon]="'person'"
+      (imageChange)="onImageChange($event)"
+      (imageError)="onImageError($event)">
+      <mat-icon class="text-white bg-secondary">person</mat-icon>
     </app-image-picker>
   </div>
-  <mat-card fxFlex="grow" fxFlex.gt-xs="50" fxFlexOrder.xs="1">
+  <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-sm="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
     <form fxLayout="column" [formGroup]="form" (submit)="onSave()">
       <mat-form-field>
         <input matInput placeholder="First Name" type="text" formControlName="firstName" required>

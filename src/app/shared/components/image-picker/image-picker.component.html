@@ -1,14 +1,25 @@
 <div fxLayout="column" fxFill>
-  <div fxFlex="grow" fxLayoutAlign="center center" class="border"
-    [class._cursor-pointer]="isEditable && !isCompressing" (click)="filePicker.click()">
-    <img class="w-100" [src]="imagePreview" alt="image-preview" *ngIf="imagePreview && !isCompressing">
-    <mat-hint *ngIf="isCompressing">Uploading...</mat-hint>
-    <mat-icon [inline]="true" class="text-muted my-3 _img-placeholder"  *ngIf="!imagePreview">add_photo_alternate</mat-icon>
+  <div fxLayout="column" fxFlex="grow" fxLayoutAlign="center">
+    <div fxLayout fxLayoutAlign="center center" class="_img-container" [ngClass]="class"
+      md-colors="{background-color: 'red-A100', border-color: 'primary-600'}"
+      [class._cursor-pointer]="isEditable && !isCompressing" (click)="filePicker.click()">
+      <div fxLayoutAlign="center center" *ngIf="imagePreview">
+        <img class="w-100" [src]="imagePreview" alt="image-preview" *ngIf="imagePreview && !isCompressing">
+        <mat-hint *ngIf="isCompressing">Uploading...</mat-hint>
+      </div>
+      <div fxLayoutAlign="center center" [ngClass]="placeholderClass" *ngIf="!imagePreview">
+        <mat-icon class="my-3">{{placeholderIcon}}</mat-icon>
+      </div>
+    </div>
+    <button mat-stroked-button type="button" (click)="filePicker.click()" class="bg-white"
+      [ngClass]="buttonClass" *ngIf="isEditable && !imagePreview">
+        Pick Image
+    </button>
+    <button mat-stroked-button color="warn" type="button" (click)="onDeleteImage()" class="bg-white"
+      [ngClass]="buttonClass" *ngIf="isEditable && imagePreview" [disabled]="isCompressing">
+        Delete Image
+    </button>
+    <input type="file" accept="image/*" class="invisible position-absolute"
+      [disabled]="!isEditable || isCompressing" (change)="onImagePicked($event)" #filePicker>
   </div>
-  <button mat-stroked-button type="button" (click)="filePicker.click()" class="bg-white rounded-0 border-top-0"
-    *ngIf="isEditable && !imagePreview">Pick Image</button>
-    <button mat-stroked-button color="warn" type="button" (click)="onDeleteImage()" class="bg-white rounded-0 border-top-0"
-    *ngIf="isEditable && imagePreview" [disabled]="isCompressing">Delete Image</button>
-  <input type="file" accept="image/*" class="invisible position-absolute"
-    [disabled]="!isEditable || isCompressing" (change)="onImagePicked($event)" #filePicker>
 </div>

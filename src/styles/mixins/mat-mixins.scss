@@ -1,0 +1,40 @@
+@mixin update-theme-colors($config-or-theme) {
+  // Extract the color configuration in case a theme has been passed.
+  // This allows consumers to either pass a theme object or a color configuration.
+  $config: mat-get-color-config($config-or-theme);
+
+  // Custom colors for Bootstrap's $theme-colors
+  $custom-theme-colors: (
+    "primary":    mat-color(map-get($config, primary)),
+    "secondary":  mat-color(map-get($config, accent)),
+    "danger":     mat-color(map-get($config, warn))
+  ) !global;
+}
+
+@mixin custom-typography($config-or-theme) {
+  // Extract the typography configuration in case a theme has been passed.
+  $config: mat-get-typography-config($config-or-theme);
+
+  ._mat-custom-typography {
+    font: {
+      family: mat-font-family($config, body-1);
+      size: mat-font-size($config, body-1);
+      weight: mat-font-weight($config, body-1);
+    }
+  }
+}
+
+@mixin custom-theme($theme) {
+  // Extracts the color and typography configurations from the theme.
+  $color: mat-get-color-config($theme);
+  $typography: mat-get-typography-config($theme);
+
+  // Do not generate styles if configurations for individual theming
+  // systems have been explicitly set to `null`.
+  @if $color != null {
+    @include update-theme-colors($theme);
+  }
+  @if $typography != null {
+    @include custom-typography($typography);
+  }
+}

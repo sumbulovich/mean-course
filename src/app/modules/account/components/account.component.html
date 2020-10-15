@@ -1,9 +1,7 @@
 <mat-drawer-container autosize class="h-100">
-  <mat-drawer fixedInViewport="true"
-    [attr.role]="isDrawer ? 'dialog' : 'navigation'"
-    [mode]="isDrawer ? 'over' : 'side'"
-    [opened]="!isDrawer">
-    <mat-nav-list role="navigation">
+  <mat-drawer fixedInViewport="true" [attr.role]="isHandset ? 'dialog' : 'navigation'"
+    [mode]="isHandset ? 'over' : 'side'" [opened]="!isHandset" #drawer>
+    <mat-nav-list role="navigation" (click)="isHandset && drawer.toggle()">
       <mat-list-item [routerLink]="PATHS.ACCOUNT.PROFILE"
         routerLinkActive #profile="routerLinkActive" [disabled]="profile.isActive">
         Profile
@@ -19,6 +17,11 @@
     </mat-nav-list>
   </mat-drawer>
   <mat-drawer-content>
+    <mat-toolbar *ngIf="isHandset" class="border-bottom shadow-sm">
+      <button mat-icon-button aria-label="Menu" (click)="drawer.toggle()" #menuButton>
+        <mat-icon>menu</mat-icon>
+      </button>
+    </mat-toolbar>
     <div class="pt-sm-4 px-sm-4">
       <router-outlet></router-outlet>
     </div>

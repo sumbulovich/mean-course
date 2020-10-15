@@ -1,0 +1,50 @@
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Custom imports
+@import "variables/mat-custom.scss";
+@import "mixins/mat-mixins.scss";
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Override the typography in the core CSS.
+// @include mat-core($custom-typography);
+
+// Override typography CSS classes (e.g., mat-h1, mat-display-1, mat-typography, etc.).
+// @include mat-base-typography($custom-typography);
+
+// Override typography for a specific Angular Material components.
+// @include mat-checkbox-typography($custom-typography);
+
+// Override typography for all Angular Material, including mat-base-typography and all components.
+// @include angular-material-typography($custom-typography);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($light-theme);
+
+// Include theme styles for your custom components.
+@include custom-theme($light-theme);
+
+/*
+* Customizing Angular Material component styles
+* Add this to your global stylesheet after your theme setup
+*/
+.mat-checkbox {
+  .mat-checkbox-layout .mat-checkbox-label {
+    line-height: 1.5em;
+  }
+
+  .mat-checkbox-inner-container {
+    margin-top: 0.15em;
+
+    @at-root
+    .mat-small#{&} {
+      margin-top: 0.1em;
+    }
+  }
+}

@@ -41,14 +41,14 @@ export class ProfileComponent extends FormComponent implements OnInit {
     }
 
     this.userService.getUserListener().subscribe( ( user: User ) => {
-      if ( user ) {
-        this.user = user;
-        this.imagePreview = this.user.imagePath;
-        this.setForm( user );
-      } else {
+      if ( !user ) {
         this.showFormError( 'Error' );
         this.toggleForm( Mode.write );
+        return;
       }
+      this.user = user;
+      this.imagePreview = this.user.imagePath;
+      this.setForm( user );
     } );
 
     this.toggleForm( Mode.read );
@@ -73,6 +73,7 @@ export class ProfileComponent extends FormComponent implements OnInit {
       lastName: this.form.value.lastName.trim(),
       imagePath: this.imagePreview,
     } };
+    console.log(JSON.stringify( this.user ), JSON.stringify( user ), this.image);
     if ( JSON.stringify( this.user ) !== JSON.stringify( user ) || this.image ) {
       this.userService.updateUser( user, this.image );
     } // If there is changes

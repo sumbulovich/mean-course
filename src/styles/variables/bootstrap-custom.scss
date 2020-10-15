@@ -1,0 +1,15 @@
+$grid-breakpoints: (
+  xs: 0,
+  sm: 600px,
+  md: 960px,
+  lg: 1280px,
+  xl: 1920px
+);
+
+$enable-responsive-font-sizes: true;
+
+$custom-theme-colors: () !default;
+$theme-colors: map-merge(
+  $theme-colors,
+  $custom-theme-colors
+);

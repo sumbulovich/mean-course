@@ -1,0 +1,39 @@
+// Define a custom typography config that overrides the font-family as well as the
+// `headlines` and `body-1` levels.
+$custom-typography: mat-typography-config(
+  $font-family: 'Roboto, monospace',
+  $headline: mat-typography-level(32px, 48px, 700),
+  $body-1: mat-typography-level(16px, 24px, 500)
+);
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$light-theme-primary: mat-palette($mat-indigo);
+$light-theme-accent:  mat-palette($mat-pink, A200, A100, A400);
+// The warn palette is optional (defaults to red).
+$light-theme-warn:    mat-palette($mat-red);
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as `color` or `typography`.
+$light-theme: mat-light-theme((
+  color: (
+    primary: $light-theme-primary,
+    accent: $light-theme-accent,
+    warn: $light-theme-warn
+  ),
+  // typography: $custom-typography
+));
+
+$dark-theme-primary: mat-palette($mat-blue-grey);
+$dark-theme-accent: mat-palette($mat-amber, A200, A100, A400);
+$dark-theme-warn: mat-palette($mat-deep-orange);
+$dark-theme: mat-dark-theme(
+  (
+    color: (
+      primary: $dark-theme-primary,
+      accent: $dark-theme-accent,
+      warn: $dark-theme-warn,
+    ),
+    // typography: $custom-typography
+  )
+);

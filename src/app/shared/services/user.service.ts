@@ -71,17 +71,25 @@ export class UserService {
       formData.append( 'image', image.thumbnail, fileName);
     }
     this.http
-      .put<{ message: string }>( BACKEND_URL  + user.id, formData )
+      .put<{ message: string, user: any }>( BACKEND_URL  + user.id, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
+        const userDb = responseData.user;
+        this.user = new User( userDb._id, userDb.firstName, userDb.lastName,
+          userDb.email, userDb.imagePath, '*'.repeat( userDb.passwordLength ) );
+        this.userListener.next( this.user );
       }, error => this.userListener.next( null ) ); // We can use PUT or PATCH methods
   }
 
   updateUserPassword( passwordData: PasswordData ): void {
     this.http
-      .put<{ message: string }>( BACKEND_URL  + 'password/' + this.user.id, passwordData )
+      .put<{ message: string, user: any }>( BACKEND_URL  + 'password/' + this.user.id, passwordData )
       .subscribe( responseData => {
         console.log( responseData.message );
+        const userDb = responseData.user;
+        this.user = new User( userDb._id, userDb.firstName, userDb.lastName,
+          userDb.email, userDb.imagePath, '*'.repeat( userDb.passwordLength ) );
+        this.userListener.next( this.user );
       }, error => this.userListener.next( null ) ); // We can use PUT or PATCH methods
   }
 }

@@ -1,6 +1,5 @@
-<div ngClass.lt-sm="h-100">
-  <mat-card fxLayout="column" fxFlex="350px" fxFlex.lt-sm="100%"
-    class="mx-auto mt-sm-5 p-4" ngClass.lt-sm="rounded-0">
+<div ngClass.xs="h-100">
+  <mat-card fxLayout="column" fxFlex.gt-xs="350px" class="mx-auto mt-sm-5 p-4" ngClass.xs="rounded-0">
     <p class="mat-body-strong text-center">{{modeTypes[mode]}}</p>
     <form fxLayout="column" (submit)="onSubmit(form)"
       #form="ngForm" [appMatchFields]="['password', 'confirmPassword']">
@@ -36,7 +35,9 @@
         </button>
         <mat-error *ngIf="passwordInput.errors?.required">Required.</mat-error>
         <mat-error *ngIf="passwordInput.errors?.minlength">Password must be at least 8 characters.</mat-error>
-        <mat-error *ngIf="!passwordInput.errors?.minlength && passwordInput.errors?.pattern">
+        <mat-error *ngIf="passwordInput.errors?.maxlength">Password must be 32 characters maximum.</mat-error>
+        <mat-error *ngIf="passwordInput.errors?.pattern &&
+          !(passwordInput.errors?.minlength || passwordInput.errors?.maxlength)">
           Please, increase the Password strength.
         </mat-error>
       </mat-form-field>

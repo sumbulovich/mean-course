@@ -12,7 +12,7 @@ const tokenList = {}
  */
 exports.createUser = ( req, res, next ) => {
   bcrypt.hash( req.body.password, 10 ).then( hash => {
-    const newUser = new User( {
+    const update = new User( {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
@@ -20,7 +20,7 @@ exports.createUser = ( req, res, next ) => {
       passwordLength: req.body.password.length,
       created: new Date()
     } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
-    User.create( newUser )
+    User.create( update )
       .then( user => {
         res.status( 200 ).json( {
           message: 'User created successfully',
@@ -40,8 +40,8 @@ exports.createUser = ( req, res, next ) => {
  */
 exports.signUser = ( req, res, next ) => {
   let fetchedUser;
-  const queryData = { email: req.body.authData.email };
-  User.findOne( queryData )
+  const conditions = { email: req.body.authData.email };
+  User.findOne( conditions )
     .then( user => {
       if ( !user ) {
         return;
@@ -84,22 +84,26 @@ exports.updateUser = ( req, res, next ) => {
     userImagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.USERS, req.files[0].filename );
   }
-  const newUser = new User( {
+  const update = new User( {
     _id: req.body.id,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     imagePath: userImagePath
   } ); // body is a new field edited by BodyParser package
 
-  const queryData = { _id: req.params.id };
-  User.findOneAndUpdate( queryData, newUser )
-    .then( post => {
-      if ( !post ) {
+  const conditions = { _id: req.params.id };
+  User.findOneAndUpdate( conditions, update )
+    .then( oldUser => {
+      if ( !oldUser ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ find: post } };
-      res.status( 200 ).json( { message: 'User updated successful!' } );
+      req.data = { ...req.data, ...{ find: oldUser } };
+      const newUser = { ...oldUser.toJSON(), ...update.toJSON() };
+      res.status( 200 ).json( {
+        message: 'User updated successful!',
+        user: newUser
+      } );
       next();
     } ) // .updateOne method is provided by Mongoose to its models
     .catch( error => {
@@ -108,11 +112,12 @@ exports.updateUser = ( req, res, next ) => {
 }
 
 /*
- * This middleware replace update an element
+ * This middleware update an element returning the element as it was before
  */
 exports.updateUserPassword = ( req, res, next ) => {
   let fetchedUser;
-  User.findById( req.params.id )
+  const conditions = req.params.id;
+  User.findById( conditions )
     .then( user => {
       if ( !user ) {
         return;
@@ -132,15 +137,22 @@ exports.updateUserPassword = ( req, res, next ) => {
         res.status( 401 ).json( { message: 'Invalid password!' } ); // 401 code for authentication denied
         return;
       }
-      fetchedUser.password = hash;
-      const queryData = { _id: req.params.id };
-      User.updateOne( queryData , fetchedUser )
-        .then( result => {
-          if ( result.n === 0 ) {
+      const conditions = { _id: req.params.id };
+      const update = new User( {
+        ...fetchedUser.toJSON(),
+        ...{ password: hash, passwordLength: req.body.password.length }
+      } );
+      const options = { new: true };
+      User.findOneAndUpdate( conditions, update, options )
+        .then( newUser => {
+          if ( !newUser ) {
             res.status( 401 ).json( { message: 'Not authorized user!' } );
             return;
           }
-          res.status( 200 ).json( { message: 'User updated successful!' } );
+          res.status( 200 ).json( {
+            message: 'User updated successful!',
+            user: newUser
+          } );
         } ) // .updateOne method is provided by Mongoose to its models
         .catch( error => {
           res.status( 500 ).json( {  message: 'Updating User failed!' } );
@@ -155,8 +167,8 @@ exports.updateUserPassword = ( req, res, next ) => {
  * This middleware fetch specific element
  */
 exports.getUser = ( req, res, next ) => {
-  const queryData = req.params.id;
-  User.findById( queryData )
+  const conditions = req.params.id;
+  User.findById( conditions )
     .then( user => {
       if ( !user ) {
         res.status( 404 ).json( { message: 'User not found!' } ); // 404 code for not found
@@ -173,14 +185,14 @@ exports.getUser = ( req, res, next ) => {
  * This middleware find a specific element
  */
 exports.deleteUser = ( req, res, next ) => {
-  const queryData = { _id: req.params.id };
-  User.findOneAndDelete( queryData )
-    .then( user => {
-      if ( !user ) {
+  const conditions = { _id: req.params.id };
+  User.findOneAndDelete( conditions )
+    .then( oldUser => {
+      if ( !oldUser ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ find: user } };
+      req.data = { ...req.data, ...{ find: oldUser } };
       res.status( 200 ).json( { message: 'User deleted successful!' } );
     } ) // .deleteOne method is provided by Mongoose to its models
     .catch( error => {

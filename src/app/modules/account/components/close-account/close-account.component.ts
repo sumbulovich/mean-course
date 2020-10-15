@@ -22,7 +22,7 @@ export class CloseAccountComponent implements OnInit {
   onClick(): void {
     const dialogRef = this.dialogService.open( DialogComponent, {
       data: {
-        title: '<span class="_mat-text mat-warn">Close Account</span>',
+        title: '<span class="text-danger mat-warn">Close Account</span>',
         content: `Are you sure you want to close your account?
           <p>This action is <strong>permanent</strong> and cannot be undone.</p>`,
         cancelButton: { text: 'Cancel' },

@@ -1,6 +1,9 @@
+@import 'mat-theme.scss';
+@import 'bootstrap-theme.scss';
+
 /* You can add global styles to this file, and also import other style files */
 ._cursor-pointer { cursor: pointer !important; }
-._text-pre { white-space: pre; }
+._text-pre { white-space: pre !important; }
 ._fixed_center {
   position: fixed;
   top: 50%;

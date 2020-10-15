@@ -21,15 +21,15 @@ enum Mode {
   styleUrls: [ './sign.component.scss' ]
 } )
 export class SignComponent implements OnInit, OnDestroy {
-  @ViewChild( 'acceptCheckbox' ) acceptCheckbox: MatCheckbox;
-  @ViewChildren( ResetFieldDirective ) resetFieldDirectives: QueryList<ResetFieldDirective>;
+  @ViewChild( 'form' ) private form: NgForm;
+  @ViewChild( 'acceptCheckbox' ) private acceptCheckbox: MatCheckbox;
+  @ViewChildren( ResetFieldDirective ) private resetFieldDirectives: QueryList<ResetFieldDirective>;
   modeTypes = Mode;
   mode: Mode;
   passwordPattern: RegExp;
   isShowPassword: boolean[] = [];
   readonly PATHS = PATHS;
   private authListenerSub: Subscription;
-  private form: NgForm;
 
   constructor(
     private authService: AuthService,
@@ -58,7 +58,6 @@ export class SignComponent implements OnInit, OnDestroy {
       }
       return;
     }
-    this.form = form;
     form.control.disable();
     if ( this.mode === Mode.signUp ) {
       const user: User = new User( null, form.value.firstName, form.value.lastName, form.value.email, null, form.value.password );

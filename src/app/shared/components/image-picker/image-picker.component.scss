@@ -1,6 +1,24 @@
-mat-icon._img-placeholder {
+._img-container {
+  &.rounded-circle {
+    width: 100%;
+    padding-bottom: 100%;
+    position: relative;
+    overflow: hidden;
+
+    > div {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+mat-icon {
   font-size: 6vw;
-  line-height: normal;
+  width: auto;
+  height: auto;
 
   @media screen and (max-width: 600px) {
     font-size: 50px;

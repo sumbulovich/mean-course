@@ -28,9 +28,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/mat-theme.scss",
-              "src/bootstrap-theme.scss",
-              "src/styles.scss"
+              "src/styles/styles.scss"
             ],
             "scripts": []
           },

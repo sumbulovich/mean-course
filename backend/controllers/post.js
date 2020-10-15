@@ -14,7 +14,7 @@ exports.createPost = ( req, res, next ) => {
       path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename )
   }
 
-  const newPost = new Post( {
+  const update = new Post( {
     title: req.body.title,
     content: req.body.content,
     imagePath: postImagePath,
@@ -22,7 +22,7 @@ exports.createPost = ( req, res, next ) => {
     created: new Date()
   } ); // body is a new field edited by BodyParser package
 
-  Post.create( newPost )
+  Post.create( update )
     .then( post => {
       res.status( 201 ).json( {
         message: 'Post created successfully',
@@ -45,7 +45,7 @@ exports.createPost = ( req, res, next ) => {
 }
 
 /*
- * This middleware replace update an element
+ * This middleware update an element
  */
 exports.updatePost = ( req, res, next ) => {
   let imagePath = req.body.imagePath;
@@ -53,14 +53,14 @@ exports.updatePost = ( req, res, next ) => {
     imagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename );
   }
-  const newPost = new Post( {
+  const update = new Post( {
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
     imagePath: imagePath
   } ); // body is a new field edited by BodyParser package
-  const query = { _id: req.params.id, creator: req.data.tokenPayload.userId };
-  Post.findOneAndUpdate( query, newPost )
+  const conditions = { _id: req.params.id, creator: req.data.tokenPayload.userId };
+  Post.findOneAndUpdate( conditions, update )
     .then( post => {
       if ( !post ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
@@ -80,16 +80,16 @@ exports.updatePost = ( req, res, next ) => {
  */
 exports.getPosts = ( req, res, next ) => {
   let totalPosts;
-  const queryData = { pageIndex: +req.query.pageindex, pageSize: +req.query.pagesize };
+  const conditions = { pageIndex: +req.query.pageindex, pageSize: +req.query.pagesize };
   Post.countDocuments() // .count method is provided by Mongoose to count the number of entries
     .then( count => {
       totalPosts = count;
       const findQuery = Post.find(); // .find method is provided by Mongoose to its models
-      if( queryData.pageSize ) {
-        queryData.pageIndex = queryData.pageIndex >= 0 ? queryData.pageIndex : Math.ceil( totalPosts / queryData.pageSize ) - 1;
+      if( conditions.pageSize ) {
+        conditions.pageIndex = conditions.pageIndex >= 0 ? conditions.pageIndex : Math.ceil( totalPosts / conditions.pageSize ) - 1;
         findQuery
-          .skip( queryData.pageSize * queryData.pageIndex )
-          .limit( queryData.pageSize );
+          .skip( conditions.pageSize * conditions.pageIndex )
+          .limit( conditions.pageSize );
       }
       return findQuery;
     } )
@@ -98,7 +98,7 @@ exports.getPosts = ( req, res, next ) => {
         message: 'Posts fetched successfully!',
         posts: posts,
         totalPosts: totalPosts,
-        pageIndex: queryData.pageIndex
+        pageIndex: conditions.pageIndex
       } ); // 200 code for success
     } )
     .catch( error => {
@@ -110,8 +110,8 @@ exports.getPosts = ( req, res, next ) => {
  * This middleware fetch a specific element
  */
 exports.getPost = ( req, res, next ) => {
-  const queryData = req.params.id;
-  Post.findById( queryData )
+  const conditions = req.params.id;
+  Post.findById( conditions )
     .then( post => {
       if ( !post ) {
         res.status( 404 ).json( { message: 'Post not found!' } ); // 404 code for not found
@@ -131,14 +131,14 @@ exports.getPost = ( req, res, next ) => {
  * This middleware delete a specific element
  */
 exports.deletePost = ( req, res, next ) => {
-  const queryData = { _id: req.params.id,  creator: req.data.tokenPayload.userId };
-  Post.findOneAndDelete( queryData )
-    .then( post => {
-      if ( !post ) {
+  const conditions = { _id: req.params.id,  creator: req.data.tokenPayload.userId };
+  Post.findOneAndDelete( conditions )
+    .then( oldPost => {
+      if ( !oldPost ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ find: post } };
+      req.data = { ...req.data, ...{ find: oldPost } };
       res.status( 200 ).json( { message: 'Post deleted successful!' } );
       next();
     } ) // .deleteOne method is provided by Mongoose to its models

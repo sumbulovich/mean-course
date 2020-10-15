@@ -18,6 +18,10 @@ export class ImagePickerComponent implements OnInit {
   form: FormGroup;
   @Input() imagePreview: string;
   @Input() isEditable = true;
+  @Input() class = 'border h-100';
+  @Input() placeholderClass = 'text-muted';
+  @Input() buttonClass = 'rounded-0 border-top-0';
+  @Input() placeholderIcon = 'add_photo_alternate';
   @Input() compressedImageSettings = new ImageSettings( 300, 300, 0.05 );
   @Input() thumbnailImageSettings = new ImageSettings( 50, 50 );
   @Output() imageChange = new EventEmitter<Image>();
@@ -82,7 +86,7 @@ export class ImagePickerComponent implements OnInit {
           this.image.image = error.compressedFile;
           return;
         }
-        console.error( error.reason );
+        this.imageError.emit( true );
       }
     );
 
@@ -99,7 +103,7 @@ export class ImagePickerComponent implements OnInit {
           this.image.thumbnail = error.compressedFile;
           return;
         }
-        console.error( error.reason );
+        this.imageError.emit( true );
       }
     );
   }

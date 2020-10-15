@@ -11,12 +11,12 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
 } )
 export class AccountComponent implements OnInit {
   PATHS = PATHS;
-  isDrawer: boolean;
+  isHandset: boolean;
 
   constructor( private breakpointObserver: BreakpointObserver ) {
-    this.breakpointObserver.observe( [ Breakpoints.XSmall ] )
+    this.breakpointObserver.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
       .subscribe( result => {
-        this.isDrawer = result.matches;
+        this.isHandset = result.matches;
       } );
   }
 
