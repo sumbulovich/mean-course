@@ -18,7 +18,7 @@ export class ImagePickerComponent implements OnInit {
   isDomReady: boolean;
   @Input() imagePreview: string;
   @Input() isEditable = true;
-  @Input() class = 'border border-bottom-0';
+  @Input() class = 'border border-bottom-0 h-100';
   @Input() placeholderClass = 'text-muted';
   @Input() buttonClass = 'rounded-0';
   @Input() placeholderIcon = 'add_photo_alternate';
