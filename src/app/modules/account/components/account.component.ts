@@ -1,25 +1,24 @@
-import { map, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { PATHS } from 'src/app/shared/constants/globals';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { LoadingService } from './../../../shared/services/loading.service';
+import { ACCOUNT_LINKS } from './../../../shared/constants/globals';
+import { SidenavService } from 'src/app/shared/services/sidenav.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component( {
   selector: 'app-account',
   templateUrl: './account.component.html',
   styleUrls: [ './account.component.scss' ]
 } )
-export class AccountComponent implements OnInit {
-  PATHS = PATHS;
-  isHandset: boolean;
+export class AccountComponent implements OnInit, OnDestroy {
 
-  constructor( private breakpointObserver: BreakpointObserver ) {
-    this.breakpointObserver.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
-      .subscribe( result => {
-        this.isHandset = result.matches;
-      } );
-  }
+  constructor(
+    private sidenavService: SidenavService
+  ) {}
 
   ngOnInit(): void {
+    this.sidenavService.setSidenav( ACCOUNT_LINKS );
+  }
+
+  ngOnDestroy(): void {
+    this.sidenavService.setSidenav();
   }
 }

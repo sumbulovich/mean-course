@@ -1,6 +1,9 @@
+import { Link } from './../../../../shared/models/link.model';
+import { UserService } from './../../../../shared/services/user.service';
+import { User } from './../../../../shared/models/auth.model';
 import { AuthService } from 'src/app/shared/services';
 import { Subscription } from 'rxjs';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { PATHS } from 'src/app/shared/constants/globals';
 
 @Component( {
@@ -9,19 +12,34 @@ import { PATHS } from 'src/app/shared/constants/globals';
   styleUrls: [ './header.component.scss' ]
 } )
 export class HeaderComponent implements OnInit, OnDestroy {
+  @Input() menuLinks: Link[];
+  @Output() linkClicked = new EventEmitter<Link>();
+  @Output() menuClicked = new EventEmitter<boolean>();
   isAuthenticated: boolean;
+  user: User;
   readonly PATHS = PATHS;
-  private authListenerSubs: Subscription;
+  private authListenerSub: Subscription;
+  private userListenerSub: Subscription;
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService
   ) { }
 
   ngOnInit(): void {
     this.isAuthenticated = !!this.authService.getToken(); // Get initial authenticated state
-    this.authListenerSubs = this.authService.getAuthListener()
+    this.authListenerSub = this.authService.getAuthListener()
       .subscribe( ( isAuth: boolean ) => {
         this.isAuthenticated = isAuth;
+      } );
+
+    this.user = this.userService.getUser();
+    this.userListenerSub = this.userService.getUserListener()
+      .subscribe( ( user: User ) => {
+        this.user = { ...user };
+        if ( user && user.imagePath ) {
+          this.user.imagePath = user.imagePath.replace('users/', 'users/thumbnails/');
+        }
       } );
   }
 
@@ -30,8 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if ( this.authListenerSubs ) {
-      this.authListenerSubs.unsubscribe();
-    }
+    this.authListenerSub.unsubscribe();
+    this.userListenerSub.unsubscribe();
   }
 }

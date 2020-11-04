@@ -1,34 +1,37 @@
-<div fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" *ngIf="user">
-  <div fxFlex.gt-xs="25">
+<div fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" *ngIf="user">
+  <div fxLayout.xs fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
     <app-image-picker
+      fxFlex.xs="150px"
       [imagePreview]="imagePreview"
       [isEditable]="form.enabled"
-      [class]="'rounded-circle border'"
+      [class]="'rounded-circle border my-3'"
       [placeholderClass]="'bg-secondary text-white'"
-      [buttonClass]="'my-3'"
+      [buttonClass]="'mb-3'"
       [placeholderIcon]="'person'"
+      [thumbnailImageSettings]="thumbnailImageSettings"
       (imageChange)="onImageChange($event)"
       (imageError)="onImageError($event)">
-      <mat-icon class="text-white bg-secondary">person</mat-icon>
     </app-image-picker>
   </div>
   <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-sm="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
-    <form fxLayout="column" [formGroup]="form" (submit)="onSave()">
-      <mat-form-field>
-        <input matInput placeholder="First Name" type="text" formControlName="firstName" required>
-        <mat-error *ngIf="form.get('firstName').invalid">Required</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="Last Name" type="text" formControlName="lastName" required>
-        <mat-error *ngIf="form.get('lastName').invalid">Required</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="Email" type="text" [value]="user.email" disabled readonly>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="Password" type="password" [value]="user.password" disabled readonly>
-        <button mat-button matSuffix type="button" [routerLink]="'../'+PATHS.ACCOUNT.CHANGE_PASSWORD">Change</button>
-      </mat-form-field>
+    <form fxLayout="column" fxLayoutAlign.gt-xs="space-between" [formGroup]="form" (submit)="onSave()">
+      <div fxLayout="column">
+        <mat-form-field>
+          <input matInput placeholder="First Name" type="text" formControlName="firstName" required>
+          <mat-error *ngIf="form.get('firstName').invalid">Required</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Last Name" type="text" formControlName="lastName" required>
+          <mat-error *ngIf="form.get('lastName').invalid">Required</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Email" type="text" [value]="user.email" disabled readonly>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Password" type="password" [value]="user.password" disabled readonly>
+          <button mat-button matSuffix type="button" [routerLink]="'../'+PATHS.ACCOUNT.CHANGE_PASSWORD">Change</button>
+        </mat-form-field>
+      </div>
       <div fxLayout fxLayoutAlign="space-between center">
         <div fxLayout>
           <mat-error [@fadeAnimation]="formErrorState">{{formErrorMessage}}</mat-error>

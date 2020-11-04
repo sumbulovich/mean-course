@@ -44,9 +44,6 @@ export class PostService {
         console.log( responseData.message );
         this.pageData = { ...pageData, length: responseData.totalPosts, pageIndex: responseData.pageIndex };
         return responseData.posts.map( ( postDb: any ) => {
-          if ( postDb.imagePath ) {
-            postDb.imagePath = postDb.imagePath.replace('posts/', 'posts/thumbnails/');
-          }
           return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
         } );  // Convert DB content to Post model
       } ) )

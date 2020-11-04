@@ -10,7 +10,7 @@ export class ImageSettings {
   }
 }
 
-export class Image {
+export interface Image {
   image: Blob;
   thumbnail: Blob;
 }

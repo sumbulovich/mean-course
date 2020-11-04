@@ -1,6 +1,8 @@
 export const PATHS = {
   HOME: '',
+  NOT_FOUND: '404',
   AUTH: {
+    ROOT: 'auth',
     SIGN_IN: 'signin',
     SIGN_UP: 'signup',
   },
@@ -31,5 +33,11 @@ export const TIMINGS = {
 };
 
 export enum AnimationState { in = 'in', out = 'out' }
+
+export const ACCOUNT_LINKS = [
+  { content: 'Profile', url: PATHS.ACCOUNT.ROOT + '/' + PATHS.ACCOUNT.PROFILE },
+  { content: 'Change Password', url: PATHS.ACCOUNT.ROOT + '/' + PATHS.ACCOUNT.CHANGE_PASSWORD },
+  { content: 'Close Account', url: PATHS.ACCOUNT.ROOT + '/' + PATHS.ACCOUNT.CLOSE_ACCOUNT },
+];
 
 

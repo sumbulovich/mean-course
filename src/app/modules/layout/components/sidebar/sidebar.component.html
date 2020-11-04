@@ -1,1 +1,28 @@
-Sidebar works!
+<mat-sidenav-container hasBackdrop="false" class="h-100" *ngIf="sidenavLinks">
+  <mat-sidenav-content>
+    <mat-sidenav mode="over" position="end" autoFocus="false" class="w-100" #sidenav>
+      <mat-nav-list role="navigation">
+        <mat-list-item (click)="sidenav.close()">
+          <mat-icon matListIcon class="text-muted">keyboard_arrow_left</mat-icon>
+          <span>Menu</span>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item *ngFor="let sidenavLinkChild of sidenavLinkSelected?.children" [routerLink]="sidenavLinkChild.url"
+          routerLinkActive #matListItem="routerLinkActive" [disabled]="sidenavLinkChild.url && matListItem.isActive" (click)="onSidenavClick( sidenavLinkChild )">
+          <mat-icon matListIcon *ngIf="sidenavLinkChild.icon">{{sidenavLinkChild.icon}}</mat-icon>
+          <span [innerHTML]="sidenavLinkChild.content"></span>
+        </mat-list-item>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-nav-list role="navigation">
+      <mat-list-item *ngFor="let sidenavLink of sidenavLinks" [routerLink]="sidenavLink.url"
+      routerLinkActive #matListItem="routerLinkActive" [disabled]="sidenavLink.url && matListItem.isActive" (click)="onSidenavClick( sidenavLink )">
+        <mat-icon matListIcon *ngIf="sidenavLink.icon">{{sidenavLink.icon}}</mat-icon>
+        <div fxLayout fxLayoutAlign="space-between center" class="w-100">
+          <span [innerHTML]="sidenavLink.content"></span>
+          <mat-icon class="text-muted" *ngIf="sidenavLink.children">keyboard_arrow_right</mat-icon>
+        </div>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav-content>
+</mat-sidenav-container>

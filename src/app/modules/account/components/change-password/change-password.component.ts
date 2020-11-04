@@ -24,7 +24,7 @@ export class ChangePasswordComponent implements OnInit {
       } ),
       newPassword: new FormControl( null, {
         validators: [
-          // Validators.required,
+          Validators.required,
           Validators.minLength( 8 ),
           Validators.maxLength( 32 ),
           Validators.pattern( new RegExp( PASSWORD_PATTERN ) )
@@ -51,7 +51,6 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   onSave(): void {
-    console.log(this.form.get('newPassword').errors);
     if ( this.form.invalid ) {
       return;
     }

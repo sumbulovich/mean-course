@@ -9,11 +9,11 @@ import { NgModule } from '@angular/core';
 
 const routes: Routes = [
   {
-    path: PATHS.ACCOUNT.ROOT, component: AccountComponent, canActivate: [ AuthGuard ], children: [
+    path: '', component: AccountComponent, canActivate: [ AuthGuard ], children: [
       { path: PATHS.ACCOUNT.PROFILE, component: ProfileComponent },
       { path: PATHS.ACCOUNT.CHANGE_PASSWORD, component: ChangePasswordComponent },
       { path: PATHS.ACCOUNT.CLOSE_ACCOUNT, component: CloseAccountComponent },
-      { path: '**', redirectTo: PATHS.ACCOUNT.PROFILE }
+      { path: '', redirectTo: PATHS.ACCOUNT.PROFILE, pathMatch: 'full' },
     ]
   },
 ];

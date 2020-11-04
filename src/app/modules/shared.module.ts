@@ -1,3 +1,4 @@
+import { CalcPipe } from 'src/app/shared/pipes/calc.pipe';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { CommonModule } from '@angular/common';
@@ -14,7 +15,8 @@ import {
     LoadingComponent,
     DialogComponent,
     ImagePickerComponent,
-    FormComponent
+    FormComponent,
+    CalcPipe
   ],
   imports: [
     CommonModule,
@@ -28,7 +30,8 @@ import {
     LoadingComponent,
     DialogComponent,
     ImagePickerComponent,
-    FormComponent
+    FormComponent,
+    CalcPipe
   ]
 })
 export class SharedModule { }

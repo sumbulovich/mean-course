@@ -140,7 +140,10 @@ exports.updateUserPassword = ( req, res, next ) => {
       const conditions = { _id: req.params.id };
       const update = new User( {
         ...fetchedUser.toJSON(),
-        ...{ password: hash, passwordLength: req.body.password.length }
+        ...{
+          password: hash,
+          passwordLength: req.body.newPassword.length
+        }
       } );
       const options = { new: true };
       User.findOneAndUpdate( conditions, update, options )
@@ -150,7 +153,7 @@ exports.updateUserPassword = ( req, res, next ) => {
             return;
           }
           res.status( 200 ).json( {
-            message: 'User updated successful!',
+            message: 'Password updated successful!',
             user: newUser
           } );
         } ) // .updateOne method is provided by Mongoose to its models

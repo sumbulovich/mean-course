@@ -1,29 +1,3 @@
-<mat-drawer-container autosize class="h-100">
-  <mat-drawer fixedInViewport="true" [attr.role]="isHandset ? 'dialog' : 'navigation'"
-    [mode]="isHandset ? 'over' : 'side'" [opened]="!isHandset" #drawer>
-    <mat-nav-list role="navigation" (click)="isHandset && drawer.toggle()">
-      <mat-list-item [routerLink]="PATHS.ACCOUNT.PROFILE"
-        routerLinkActive #profile="routerLinkActive" [disabled]="profile.isActive">
-        Profile
-      </mat-list-item>
-      <mat-list-item [routerLink]="PATHS.ACCOUNT.CHANGE_PASSWORD"
-        routerLinkActive #changePassword="routerLinkActive" [disabled]="changePassword.isActive">
-        Change Password
-      </mat-list-item>
-      <mat-list-item [routerLink]="PATHS.ACCOUNT.CLOSE_ACCOUNT"
-        routerLinkActive #closeAccount="routerLinkActive" [disabled]="closeAccount.isActive">
-        Close Account
-      </mat-list-item>
-    </mat-nav-list>
-  </mat-drawer>
-  <mat-drawer-content>
-    <mat-toolbar *ngIf="isHandset" class="border-bottom shadow-sm">
-      <button mat-icon-button aria-label="Menu" (click)="drawer.toggle()" #menuButton>
-        <mat-icon>menu</mat-icon>
-      </button>
-    </mat-toolbar>
-    <div class="pt-sm-4 px-sm-4">
-      <router-outlet></router-outlet>
-    </div>
-  </mat-drawer-content>
-</mat-drawer-container>
+<div class="h-100" ngClass.gt-xs="p-4">
+  <router-outlet></router-outlet>
+</div>

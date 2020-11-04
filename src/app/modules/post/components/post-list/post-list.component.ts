@@ -18,6 +18,7 @@ enum Pagination {
 } )
 export class PostListComponent implements OnInit, OnDestroy {
   @ViewChild( 'paginator' ) paginator: MatPaginator;
+  isAuthenticated: boolean;
   posts: Post[] = [];
   pageData = new PageEvent();
   userId: string;
@@ -35,9 +36,15 @@ export class PostListComponent implements OnInit, OnDestroy {
   ) {
     const navigationState = this.router.getCurrentNavigation().extras.state;
     this.pagination = navigationState && navigationState.pagination;
+    this.loadingService.setLoadingListener( true );
    }
 
   ngOnInit(): void {
+    this.isAuthenticated = !!this.authService.getToken(); // Get initial authenticated state
+    this.authListenerSub = this.authService.getAuthListener()
+      .subscribe( ( isAuth: boolean ) => {
+        this.isAuthenticated = isAuth;
+      } );
     this.pageData = this.postService.getPageData();
     if ( this.pagination ) {
       this.pageData.pageIndex = Pagination[ this.pagination ];
@@ -51,7 +58,12 @@ export class PostListComponent implements OnInit, OnDestroy {
           this.paginator.previousPage(); // .previousPage is a method of MatPaginator
           return;
         } // If we are on the last page and there is not any post
-        this.posts = posts;
+        this.posts = posts.map( ( post: Post ) => {
+          if ( post.imagePath ) {
+            post.imagePath = post.imagePath.replace('posts/', 'posts/thumbnails/');
+          }
+          return post;
+        } );
         this.loadingService.setLoadingListener( false );
       } );
 
@@ -65,8 +77,8 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   onChangePage( pageData: PageEvent ): void {
     this.loadingService.setLoadingListener( true );
+    this.postService.getPosts( pageData );
     this.pageData = pageData;
-    this.postService.getPosts( this.pageData );
   }
 
   onDelete( postId: string ): void {

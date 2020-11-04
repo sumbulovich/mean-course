@@ -1,3 +1,4 @@
+import { Ng2ImgMaxModule } from 'ng2-img-max';
 import { AccountRoutingModule } from './account-routing.module';
 import { AccountComponent } from './components/account.component';
 import { ProfileComponent } from './components/profile/profile.component';
@@ -17,7 +18,8 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
   imports: [
     SharedModule,
     ReactiveFormsModule,
-    AccountRoutingModule
+    AccountRoutingModule,
+    Ng2ImgMaxModule
   ]
 })
 export class AccountModule { }

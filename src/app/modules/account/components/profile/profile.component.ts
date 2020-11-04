@@ -1,3 +1,4 @@
+import { ImageSettings } from './../../../../shared/models/image.model';
 import { PATHS } from 'src/app/shared/constants/globals';
 import { FormComponent } from 'src/app/shared/components';
 import { Animations } from 'src/app/shared/constants/animations';
@@ -18,7 +19,8 @@ export class ProfileComponent extends FormComponent implements OnInit {
   user: User;
   modeTypes = Mode;
   mode: Mode;
-  PATHS = PATHS;
+  thumbnailImageSettings = new ImageSettings( 40, 40 );
+  readonly PATHS = PATHS;
 
   constructor( private userService: UserService ) {
     super();
@@ -73,7 +75,6 @@ export class ProfileComponent extends FormComponent implements OnInit {
       lastName: this.form.value.lastName.trim(),
       imagePath: this.imagePreview,
     } };
-    console.log(JSON.stringify( this.user ), JSON.stringify( user ), this.image);
     if ( JSON.stringify( this.user ) !== JSON.stringify( user ) || this.image ) {
       this.userService.updateUser( user, this.image );
     } // If there is changes

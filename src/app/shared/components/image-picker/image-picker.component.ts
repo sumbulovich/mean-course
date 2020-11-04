@@ -3,7 +3,6 @@ import { take, finalize, flatMap } from 'rxjs/operators';
 import { Observable, iif } from 'rxjs';
 import { mimeType } from './../../validators/mime-type.validator';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ImageService } from './../../services/image.service';
 import { Image, ImageSettings } from './../../models/image.model';
 import { Component, EventEmitter, OnInit, Output, Input, ViewChild, ElementRef } from '@angular/core';
 
@@ -16,11 +15,12 @@ export class ImagePickerComponent implements OnInit {
   isCompressing: boolean;
   image: Image;
   form: FormGroup;
+  isDomReady: boolean;
   @Input() imagePreview: string;
   @Input() isEditable = true;
-  @Input() class = 'border h-100';
+  @Input() class = 'border border-bottom-0';
   @Input() placeholderClass = 'text-muted';
-  @Input() buttonClass = 'rounded-0 border-top-0';
+  @Input() buttonClass = 'rounded-0';
   @Input() placeholderIcon = 'add_photo_alternate';
   @Input() compressedImageSettings = new ImageSettings( 300, 300, 0.05 );
   @Input() thumbnailImageSettings = new ImageSettings( 50, 50 );
@@ -35,6 +35,10 @@ export class ImagePickerComponent implements OnInit {
       image: new FormControl( null, {
         asyncValidators: [ mimeType ]
       } )
+    } );
+
+    setTimeout( () => {
+      this.isDomReady = true;
     } );
   }
 
@@ -70,7 +74,7 @@ export class ImagePickerComponent implements OnInit {
     };
 
     if ( !this.image ) {
-      this.image = new Image();
+      this.image = { image: null, thumbnail: null };
     }
     this.isCompressing = true;
     this.compressImage( file, this.compressedImageSettings )

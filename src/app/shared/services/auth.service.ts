@@ -163,6 +163,7 @@ export class AuthService {
     this.http.post( BACKEND_URL + 'token/reject', this.localStorageService.getLocalStorage() );
     this.setToken( null );
     this.userId = null;
+    this.userService.setUser( this.userId );
     this.localStorageService.deleteLocalStorage();
     this.router.navigate( [ PATHS.HOME ] );
   }

@@ -1,12 +1,25 @@
-<div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px">
-  <div fxFlex.gt-xs="25">
-    <app-image-picker [imagePreview]="imagePreview"
-      (imageChange)="onImageChange($event)" (imageError)="onImageError($event)">
+<mat-toolbar class="border-bottom shadow-sm h-auto py-2"
+  fxLayout fxLayoutAlign="space-between" *ngIf="modeTypes.edit === mode">
+  <div></div>
+  <div>
+    <button mat-mini-fab color="warn" (click)="onDelete()" class="shadow-none">
+      <mat-icon class="shadow-none">delete</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<div fxLayout.xs="column" fxLayout.gt-xs="row" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" ngClass.gt-xs="p-4">
+  <div fxLayout.xs="column" fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
+    <app-image-picker
+      fxFlex.xs="150px"
+      [imagePreview]="imagePreview"
+      (imageChange)="onImageChange($event)"
+      (imageError)="onImageError($event)">
     </app-image-picker>
   </div>
   <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-xs="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
     <!-- <form (submit)="onSavePost(postForm)" #postForm="ngForm" fxLayout="column"> -->
-    <form [formGroup]="form" (submit)="onSave()" fxLayout="column" fxLayoutAlign="space-between" fxFill>
+    <form fxLayout="column" fxLayoutAlign.gt-xs="space-between" [formGroup]="form" (submit)="onSave()">
       <div fxLayout="column">
         <mat-form-field>
           <!-- <input matInput placeholder="Title" type="text" name="title" [ngModel]="post?.title" #title="ngModel" required> -->
@@ -25,8 +38,8 @@
           <mat-hint [@fadeAnimation]="formHintState">{{formHintMessage}}</mat-hint>
         </div>
         <div>
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || form.disabled || isImageUploading">Save Post</button>
-          <button mat-raised-button color="warn" type="button" (click)="onDelete()" *ngIf="modeTypes.edit === mode" class="ml-2"><mat-icon>delete</mat-icon></button>
+          <button mat-raised-button type="button" class="ml-2" [routerLink]="'/' + PATHS.POSTS.ROOT">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || form.disabled || isImageUploading" class="ml-2">Save Post</button>
         </div>
       </div>
     </form>

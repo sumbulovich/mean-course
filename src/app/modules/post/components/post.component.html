@@ -1,17 +1,1 @@
-<mat-toolbar class="border-bottom shadow-sm h-auto py-2"
-  fxLayout fxLayoutAlign="space-between" *ngIf="isAuthenticated && isToolbar">
-  <div>
-  </div>
-  <div>
-    <button mat-mini-fab color="primary" [routerLink]="PATHS.POSTS.CREATE" routerLinkActive #rlaAdd="routerLinkActive"
-      [disabled]="rlaAdd.isActive" *ngIf="mode === modeTypes.list">
-      <mat-icon class="shadow-none">add</mat-icon>
-    </button>
-  </div>
-</mat-toolbar>
-
-<section class="pt-sm-4 px-sm-4" [class.invisible]="isLoading" [style.opacity]="isLoading ? 0 : 1">
-  <router-outlet (activate)="onRouterOutletActivate($event)" ></router-outlet>
-</section>
-
-<app-loading *ngIf="isLoading" class="_fixed_center"></app-loading>
+<router-outlet></router-outlet>

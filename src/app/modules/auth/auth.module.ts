@@ -1,8 +1,8 @@
-import { ResetFieldDirective, MatchFieldsDirective } from 'src/app/shared/directives';
-import { SignRoutingModule } from './sign-routing.module';
-import { SharedModule } from './../shared.module';
-import { FormsModule } from '@angular/forms';
 import { SignComponent } from './components/sign/sign.component';
+import { AuthRoutingModule } from './auth-routing.module';
+import { ResetFieldDirective, MatchFieldsDirective } from 'src/app/shared/directives';
+import { SharedModule } from '../shared.module';
+import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 
 @NgModule({
@@ -14,7 +14,7 @@ import { NgModule } from '@angular/core';
   imports: [
     SharedModule,
     FormsModule,
-    SignRoutingModule
+    AuthRoutingModule
   ]
 })
-export class SignModule { }
+export class AuthModule { }

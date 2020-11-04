@@ -8,10 +8,10 @@ import { NgModule } from '@angular/core';
 
 
 const routes: Routes = [
-  { path: PATHS.POSTS.ROOT, component: PostComponent, children: [
+  { path: '', component: PostComponent, children: [
     { path: PATHS.POSTS.LIST, component: PostListComponent },
     { path: PATHS.POSTS.CREATE, component: PostCreateComponent, canActivate: [ AuthGuard ] },
-    { path: PATHS.POSTS.EDIT + '/:postId', component: PostCreateComponent, canActivate: [ AuthGuard ] }
+    { path: PATHS.POSTS.EDIT + '/:postId', component: PostCreateComponent, canActivate: [ AuthGuard ] },
   ] }
 ];
 

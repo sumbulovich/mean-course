@@ -37,7 +37,8 @@ export class SignComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.mode = this.router.url === '/' + PATHS.AUTH.SIGN_UP ? Mode.signUp : Mode.signIn;
+    const pathSegment: string = this.router.url.split( '/' ).pop();
+    this.mode = pathSegment === PATHS.AUTH.SIGN_UP ? Mode.signUp : Mode.signIn;
     if ( this.mode === Mode.signUp ) {
       this.passwordPattern = new RegExp( PASSWORD_PATTERN );
     }

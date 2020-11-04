@@ -1,13 +1,13 @@
+import { Link } from './../../../../shared/models/link.model';
 import { PATHS } from 'src/app/shared/constants/globals';
 import { Animations } from 'src/app/shared/constants/animations';
 import { Post } from 'src/app/shared/models';
 import { FormComponent } from 'src/app/shared/components';
-import { AuthService } from 'src/app/shared/services';
 import { mimeType } from 'src/app/shared/validators';
 import { PostService, LoadingService } from 'src/app/shared/services';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, UrlSegment } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 enum Mode { create, edit }
@@ -19,20 +19,27 @@ enum Mode { create, edit }
   animations: [ Animations.fadeAnimation ]
 } )
 export class PostCreateComponent extends FormComponent implements OnInit, OnDestroy {
+  postId: string;
   post: Post;
   modeTypes = Mode;
   mode: Mode;
+  toolbarLinks: Link[];
+  readonly PATHS = PATHS;
   private postListenerSub: Subscription;
-  private authListenerSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private postService: PostService,
     private loadingService: LoadingService,
-    private authService: AuthService
   ) {
     super();
+    this.route.paramMap.subscribe( ( paramMap: ParamMap ) => {
+      this.postId = paramMap.get( 'postId' );
+      if ( this.postId ) {
+        this.loadingService.setLoadingListener( true );
+      }
+    } );
   }
 
   ngOnInit(): void {
@@ -48,24 +55,19 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
       } )
     } );
 
-    this.route.paramMap.subscribe( ( paramMap: ParamMap ) => {
-      if ( !paramMap.has( 'postId' ) ) {
-        this.mode = Mode.create;
-        setTimeout( () => this.loadingService.setLoadingListener( false ) );
-        return;
-      }
-      this.mode = Mode.edit;
-      const postId: string = paramMap.get( 'postId' );
-      this.postService.getPost( postId ).subscribe( ( post: Post ) => {
-        this.post = post;
-        this.imagePreview = post.imagePath;
-        this.form.patchValue( {
-          title: post.title,
-          content: post.content,
-        } ); // .setValue sets values of all formControls
-        this.loadingService.setLoadingListener( false );
-      } );
-    } );
+    this.mode = this.postId ? Mode.edit : Mode.create;
+    if ( this.mode === Mode.edit ) {
+      this.postService.getPost( this.postId )
+        .subscribe( ( post: Post ) => {
+          this.post = post;
+          this.imagePreview = post.imagePath;
+          this.form.patchValue( {
+            title: post.title,
+            content: post.content,
+          } ); // .setValue sets values of all formControls
+          this.loadingService.setLoadingListener( false );
+        } );
+    }
 
     this.postListenerSub = this.postService.getPostListener()
       .subscribe( ( post: Post ) => {
@@ -74,18 +76,13 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
         }
         this.form.enable();
       } );
-    this.authListenerSub = this.authService.getAuthListener()
-      .subscribe( () => this.loadingService.setLoadingListener( false ) );
   }
 
   onSave(): void {
     if ( this.form.invalid && this.isImageUploading ) {
       return;
     }
-    if ( this.mode === Mode.create ) {
-      const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
-      this.postService.addPost( post, this.image );
-    } else {
+    if ( this.mode === Mode.edit ) {
       const post: Post = { ...this.post, ...{
         title: this.form.value.title.trim(),
         content: this.form.value.content.trim(),
@@ -97,6 +94,9 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
       }  else {
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
       } // If there is changes
+    } else {
+      const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
+      this.postService.addPost( post, this.image );
     }
   }
 
@@ -106,6 +106,5 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
 
   ngOnDestroy(): void {
     this.postListenerSub.unsubscribe();
-    this.authListenerSub.unsubscribe();
   }
 }

@@ -1,4 +1,4 @@
-import { PATHS } from 'src/app/shared/constants/globals';
+import { SnackBarService } from './snack-bar.service';
 import { environment } from './../../../environments/environment';
 import { User, PasswordData } from './../models/auth.model';
 import { Observable, Subject } from 'rxjs';
@@ -16,7 +16,10 @@ export class UserService {
   private user: User;
   private userListener = new Subject<User>();
 
-  constructor( private http: HttpClient ) { }
+  constructor(
+    private http: HttpClient,
+    private snackBarService: SnackBarService
+  ) { }
 
   getUser(): User {
     return this.user;
@@ -47,7 +50,12 @@ export class UserService {
     } ) );
   }
 
-  setUser( id: string ): void {
+  setUser( id?: string ): void {
+    if ( !id ) {
+      this.user = null;
+      this.userListener.next( null );
+      return;
+    }
     this.http
       .get<{ message: string, user: any }>( BACKEND_URL + id )
       .subscribe( responseData => {
@@ -86,6 +94,10 @@ export class UserService {
       .put<{ message: string, user: any }>( BACKEND_URL  + 'password/' + this.user.id, passwordData )
       .subscribe( responseData => {
         console.log( responseData.message );
+        this.snackBarService.open( responseData.message, null, {
+          duration: 3000,
+          panelClass: [ 'alert', 'alert-success', 'shadow-sm' ]
+        } );
         const userDb = responseData.user;
         this.user = new User( userDb._id, userDb.firstName, userDb.lastName,
           userDb.email, userDb.imagePath, '*'.repeat( userDb.passwordLength ) );

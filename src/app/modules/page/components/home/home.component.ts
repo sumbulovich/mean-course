@@ -1,3 +1,4 @@
+import { LoadingService } from './../../../../shared/services/loading.service';
 import { PATHS } from 'src/app/shared/constants/globals';
 import { Component, OnInit } from '@angular/core';
 
@@ -13,5 +14,4 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
 }

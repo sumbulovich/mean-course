@@ -1,0 +1,82 @@
+<mat-card fxLayout="column" fxFlex.gt-xs="350px" class="mx-auto mt-sm-5 p-4" ngClass.xs="rounded-0 h-100">
+  <p class="mat-body-strong text-center">{{modeTypes[mode]}}</p>
+  <form fxLayout="column" (submit)="onSubmit(form)"
+    #form="ngForm" [appMatchFields]="['password', 'confirmPassword']">
+    <ng-container *ngIf="mode === modeTypes.signUp">
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>First Name</mat-label>
+        <input matInput type="text" name="firstName"
+          ngModel #firstNameInput="ngModel" maxlength="32" required>
+        <mat-error *ngIf="firstNameInput.invalid">Required.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>Last Name</mat-label>
+        <input matInput type="text" name="lastName"
+          ngModel #lastNameInput="ngModel" maxlength="32" required>
+        <mat-error *ngIf="lastNameInput.invalid">Required.</mat-error>
+      </mat-form-field>
+    </ng-container>
+
+    <mat-form-field appearance="outline" hideRequiredMarker>
+      <mat-label>E-Mail</mat-label>
+      <input matInput type="email" name="email"
+        ngModel #emailInput="ngModel" email maxlength="64" required>
+      <mat-error *ngIf="emailInput.errors?.required">Required.</mat-error>
+      <mat-error *ngIf="emailInput.errors?.email">Please enter a valid email.</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" hideRequiredMarker>
+      <mat-label>Password</mat-label>
+      <input matInput [type]="isShowPassword[0] ? 'text' : 'password'" name="password" appResetField
+        ngModel #passwordInput="ngModel" minlength="8" maxlength="32" [pattern]="passwordPattern" required>
+      <button mat-icon-button matSuffix type="button" (click)="isShowPassword[0] = !isShowPassword[0]"
+        [attr.aria-label]="(isShowPassword[0] ? 'Hide' : 'Show') + 'password'" [attr.aria-pressed]="isShowPassword[0]">
+        <mat-icon>{{isShowPassword[0] ? 'visibility' : 'visibility_off'}}</mat-icon>
+      </button>
+      <mat-error *ngIf="passwordInput.errors?.required">Required.</mat-error>
+      <mat-error *ngIf="passwordInput.errors?.minlength">Password must be at least 8 characters.</mat-error>
+      <mat-error *ngIf="passwordInput.errors?.maxlength">Password must be 32 characters maximum.</mat-error>
+      <mat-error *ngIf="passwordInput.errors?.pattern &&
+        !(passwordInput.errors?.minlength || passwordInput.errors?.maxlength)">
+        Please, increase the Password strength.
+      </mat-error>
+    </mat-form-field>
+
+    <ng-container *ngIf="mode === modeTypes.signUp">
+      <mat-form-field appearance="outline" hideRequiredMarker>
+        <mat-label>Confirm Password</mat-label>
+        <input matInput [type]="isShowPassword[1] ? 'text' : 'password' " name="confirmPassword" appResetField
+          ngModel #confirmPasswordInput="ngModel" maxlength="32" required>
+        <button mat-icon-button matSuffix type="button" (click)="isShowPassword[1] = !isShowPassword[1]"
+          [attr.aria-label]="(isShowPassword[1] ? 'Hide' : 'Show') + 'password'" [attr.aria-pressed]="isShowPassword[1]">
+          <mat-icon>{{isShowPassword[1] ? 'visibility' : 'visibility_off'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="confirmPasswordInput.errors?.required">Required</mat-error>
+        <mat-error *ngIf="confirmPasswordInput.errors?.misMatch">Passwords must match.</mat-error>
+      </mat-form-field>
+      <mat-checkbox class="mat-small mt-1" name="accept" ngModel #acceptCheckbox appResetField required>
+        <span class="text-wrap">
+          I read and accept the <a href="#">Privacy Policy</a>  and <a href="#">Terms and Conditions</a>.
+        </span>
+      </mat-checkbox>
+    </ng-container>
+
+    <ng-container *ngIf="mode === modeTypes.signIn">
+      <div fxLayout fxLayoutAlign="space-between center">
+        <mat-checkbox name="remember" ngModel>
+          <span class="text-wrap">Remember Me</span>
+        </mat-checkbox>
+        <a class="text-right mb-2 ml-2">Forgot Password?</a>
+      </div>
+    </ng-container>
+
+    <button class="mt-2" mat-raised-button color="primary" type="submit" [disabled]="form.disabled">
+      {{modeTypes[mode]}}
+    </button>
+    <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signUp">
+      Already have an account? <a [routerLink]="PATHS.AUTH.SIGN_IN">{{modeTypes.signIn}}</a>.
+    </p>
+    <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signIn">
+      Don’t have an account? <a [routerLink]="PATHS.AUTH.SIGN_UP">{{modeTypes.signUp}}</a>.
+    </p>
+  </form>
+</mat-card>

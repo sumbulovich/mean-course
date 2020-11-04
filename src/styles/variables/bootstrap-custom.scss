@@ -8,6 +8,7 @@ $grid-breakpoints: (
 
 $enable-responsive-font-sizes: true;
 
+$theme-colors: () !default;
 $custom-theme-colors: () !default;
 $theme-colors: map-merge(
   $theme-colors,
