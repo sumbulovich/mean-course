@@ -3,7 +3,7 @@
 </header>
 <main fxLayout [style.minHeight]="isDomReady ? ( (header.offsetHeight + footer.offsetHeight) | calc ) : 'auto'"
   [class.invisible]="!(isDomReady && !isLoading)" #main>
-  <mat-drawer-container fxFlex="grow">
+  <mat-drawer-container fxFlex="grow" autosize>
     <mat-drawer position="start" fixedInViewport="true" autoFocus="false" [attr.role]="bpState.breakpoints[Breakpoints.XSmall] ? 'dialog' : 'navigation'"
       [mode]="bpState.breakpoints[Breakpoints.XSmall] ? 'over' : 'side'" [opened]="!bpState.matches"
       [class.w-75]="bpState.breakpoints[Breakpoints.XSmall]" #drawer>
@@ -23,4 +23,4 @@
   <app-footer></app-footer>
 </footer>
 
-<app-loading class="_fixed_center" *ngIf="isDomReady || isLoading"></app-loading>
+<app-loading class="_fixed_center" *ngIf="isLoading"></app-loading>

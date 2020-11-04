@@ -8,16 +8,15 @@
   </div>
 </mat-toolbar>
 
-<div fxLayout.xs="column" fxLayout.gt-xs="row" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" ngClass.gt-xs="p-4">
-  <div fxLayout.xs="column" fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
+<div fxLayout="column" fxLayout.gt-xs="row" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" ngClass.gt-xs="p-4">
+  <div fxFlex="40" fxFlex.gt-xs="25">
     <app-image-picker
-      fxFlex.xs="150px"
       [imagePreview]="imagePreview"
       (imageChange)="onImageChange($event)"
       (imageError)="onImageError($event)">
     </app-image-picker>
   </div>
-  <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-xs="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
+  <mat-card fxFlex="grow" fxFlex.sm="75" fxFlex.gt-sm="50" fxFlexOrder.xs="1" ngClass.xs="rounded-0">
     <!-- <form (submit)="onSavePost(postForm)" #postForm="ngForm" fxLayout="column"> -->
     <form fxLayout="column" fxLayoutAlign.gt-xs="space-between" [formGroup]="form" (submit)="onSave()">
       <div fxLayout="column">

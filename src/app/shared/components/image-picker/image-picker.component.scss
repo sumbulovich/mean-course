@@ -1,8 +1,8 @@
 @import 'variables/bootstrap-custom.scss';
 
 .rounded-circle {
+  height: auto !important;
   padding-bottom: 100%;
-  overflow: hidden;
 }
 
 mat-icon {

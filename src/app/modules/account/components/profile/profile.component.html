@@ -1,10 +1,10 @@
-<div fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" *ngIf="user">
-  <div fxLayout.xs fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
+<div fxLayout="column" fxLayout.gt-xs="row" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" *ngIf="user">
+  <div fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
     <app-image-picker
-      fxFlex.xs="150px"
+      fxFlex.xs="60"
       [imagePreview]="imagePreview"
       [isEditable]="form.enabled"
-      [class]="'rounded-circle border my-3'"
+      [class]="'rounded-circle border my-3 overflow-hidden'"
       [placeholderClass]="'bg-secondary text-white'"
       [buttonClass]="'mb-3'"
       [placeholderIcon]="'person'"

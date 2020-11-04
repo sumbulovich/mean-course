@@ -1,9 +1,6 @@
-<input type="file" accept="image/*" class="invisible position-fixed"
-    [disabled]="!isEditable || isCompressing" (change)="onImagePicked($event)" #filePicker>
-
 <div fxLayout="column" fxLayoutAlign="center" class="h-100">
   <div (click)="isEditable && filePicker.click()"
-    class="position-relative"
+    class="position-relative h-100"
     [ngClass]="imagePreview ? class : [class, placeholderClass]"
     [class._cursor-pointer]="isEditable && !isCompressing">
     <div fxLayout fxLayoutAlign="center center" class="position-absolute h-100 w-100">
@@ -24,3 +21,6 @@
     </button>
   </div>
 </div>
+
+<input type="file" accept="image/*" class="invisible position-fixed"
+    [disabled]="!isEditable || isCompressing" (change)="onImagePicked($event)" #filePicker>
