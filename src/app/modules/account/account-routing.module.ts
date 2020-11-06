@@ -1,3 +1,4 @@
+import { DeactivateGuard } from './../../shared/guards/deactivate.guard';
 import { AuthGuard } from './../../shared/guards/auth.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { PATHS } from 'src/app/shared/constants/globals';
@@ -9,8 +10,12 @@ import { NgModule } from '@angular/core';
 
 const routes: Routes = [
   {
-    path: '', component: AccountComponent, canActivate: [ AuthGuard ], children: [
-      { path: PATHS.ACCOUNT.PROFILE, component: ProfileComponent },
+    path: '', component: AccountComponent, children: [
+      {
+        path: PATHS.ACCOUNT.PROFILE,
+        component: ProfileComponent,
+        canDeactivate: [ DeactivateGuard ]
+      },
       { path: PATHS.ACCOUNT.CHANGE_PASSWORD, component: ChangePasswordComponent },
       { path: PATHS.ACCOUNT.CLOSE_ACCOUNT, component: CloseAccountComponent },
       { path: '', redirectTo: PATHS.ACCOUNT.PROFILE, pathMatch: 'full' },

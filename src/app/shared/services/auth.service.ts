@@ -135,7 +135,7 @@ export class AuthService {
         this.localStorageService.setLocalStorage( localStorageData );
       }, error => {
         this.signOut();
-        this.snackBarService.open( 'Your session has expired', 'Ok' );
+        // this.snackBarService.open( 'Your session has expired', 'Ok' );
       } );
   }
 

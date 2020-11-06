@@ -32,7 +32,7 @@ export class ImagePickerComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = new FormGroup( {
-      image: new FormControl( null, {
+      image: new FormControl( '', {
         asyncValidators: [ mimeType ]
       } )
     } );

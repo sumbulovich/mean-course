@@ -1,4 +1,6 @@
-import { Link } from './../../../../shared/models/link.model';
+import { map, take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { Link } from 'src/app/shared/models';
 import { PATHS } from 'src/app/shared/constants/globals';
 import { Animations } from 'src/app/shared/constants/animations';
 import { Post } from 'src/app/shared/models';
@@ -7,8 +9,8 @@ import { mimeType } from 'src/app/shared/validators';
 import { PostService, LoadingService } from 'src/app/shared/services';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router, UrlSegment } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { ActivatedRoute, ParamMap, Router, UrlTree } from '@angular/router';
+import { Subscription, Observable } from 'rxjs';
 
 enum Mode { create, edit }
 
@@ -32,8 +34,9 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
     private router: Router,
     private postService: PostService,
     private loadingService: LoadingService,
+    dialogService: MatDialog
   ) {
-    super();
+    super( dialogService );
     this.route.paramMap.subscribe( ( paramMap: ParamMap ) => {
       this.postId = paramMap.get( 'postId' );
       if ( this.postId ) {
@@ -44,13 +47,13 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
 
   ngOnInit(): void {
     this.form = new FormGroup( {
-      title: new FormControl( null, {
+      title: new FormControl( '', {
         validators: [ Validators.required, Validators.minLength( 3 ) ]
       } ),
-      content: new FormControl( null, {
+      content: new FormControl( '', {
         validators: [ Validators.required ]
       } ),
-      image: new FormControl( null, {
+      image: new FormControl( '', {
         asyncValidators: [ mimeType ]
       } )
     } );
@@ -73,31 +76,50 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
       .subscribe( ( post: Post ) => {
         if ( !post ) {
           this.showFormError( 'Error' );
+          this.form.enable();
+          this.isSaved = false;
         }
-        this.form.enable();
       } );
+  }
+
+  getCurrentPost(): Post {
+    return { ...this.post, ...{
+      title: this.form.value.title.trim(),
+      content: this.form.value.content.trim(),
+      imagePath: this.imagePreview,
+    } };
   }
 
   onSave(): void {
     if ( this.form.invalid && this.isImageUploading ) {
       return;
     }
+    this.form.disable();
+    this.isSaved = true;
     if ( this.mode === Mode.edit ) {
-      const post: Post = { ...this.post, ...{
-        title: this.form.value.title.trim(),
-        content: this.form.value.content.trim(),
-        imagePath: this.imagePreview,
-      } };
-      if ( JSON.stringify( this.post ) !== JSON.stringify( post ) || this.image ) {
+      const post: Post = this.getCurrentPost();
+      if ( this.hasChanges( this.post, post ) ) {
         this.postService.updatePost( post, this.image );
-        this.form.disable();
-      }  else {
+      } else {
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
-      } // If there is changes
+      }
     } else {
       const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
       this.postService.addPost( post, this.image );
     }
+  }
+
+  onDeactivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    let hasChanges: boolean = this.form.dirty;
+    if ( !this.isSaved && this.post ) {
+      hasChanges = this.hasChanges( this.post, this.getCurrentPost() );
+    }
+    if ( this.isSaved || !hasChanges ) {
+      return true;
+    }
+    return this.triggerDiscardChangesDialog().afterClosed().pipe(
+      map( ( isConfirmButton: boolean ) => isConfirmButton ), take( 1 )
+    );
   }
 
   onDelete(): void {

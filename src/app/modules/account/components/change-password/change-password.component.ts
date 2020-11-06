@@ -19,10 +19,10 @@ export class ChangePasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = new FormGroup( {
-      password: new FormControl( null, {
+      password: new FormControl( '', {
         validators: [ Validators.required ]
       } ),
-      newPassword: new FormControl( null, {
+      newPassword: new FormControl( '', {
         validators: [
           Validators.required,
           Validators.minLength( 8 ),
@@ -30,7 +30,7 @@ export class ChangePasswordComponent implements OnInit {
           Validators.pattern( new RegExp( PASSWORD_PATTERN ) )
         ]
       } ),
-      confirmNewPassword: new FormControl( null, {
+      confirmNewPassword: new FormControl( '', {
         validators: [ Validators.required ]
       } )
     }, {

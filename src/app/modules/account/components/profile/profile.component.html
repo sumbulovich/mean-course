@@ -1,5 +1,5 @@
 <div fxLayout="column" fxLayout.gt-xs="row" fxLayoutAlign="center" fxLayoutGap.gt-xs="10px" ngClass.xs="h-100" *ngIf="user">
-  <div fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
+  <div fxFlex.xs fxLayoutAlign.xs="center" fxFlex.gt-xs="25">
     <app-image-picker
       fxFlex.xs="60"
       [imagePreview]="imagePreview"
@@ -43,7 +43,7 @@
           <button mat-raised-button color="primary" type="submit"
             [disabled]="form.invalid || form.disabled || isImageUploading" *ngIf="mode === modeTypes.write">Save</button>
           <button mat-raised-button color="primary" type="button"
-            (click)="toggleForm( modeTypes.write )" *ngIf="mode === modeTypes.read">Edit</button>
+            (click)="setMode( modeTypes.write )" *ngIf="mode === modeTypes.read">Edit</button>
         </div>
       </div>
     </form>
