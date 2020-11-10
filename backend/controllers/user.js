@@ -220,8 +220,6 @@ exports.refreshToken = ( req, res, next ) => {
       message: 'Token Refreshed successfully!',
       token: token
     } ); // 200 code for success
-  } else {
-    res.status( 401 ).json( { message: 'Authentication failed!' } ); // 401 code for authentication denied
   }
 }
 
