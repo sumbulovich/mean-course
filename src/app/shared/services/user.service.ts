@@ -1,11 +1,10 @@
 import { SnackBarService } from './snack-bar.service';
 import { environment } from './../../../environments/environment';
-import { User, PasswordData } from './../models/auth.model';
+import { User, PasswordData, Image } from '../models';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Image } from '../models';
 
 const BACKEND_URL = environment.apiUrl + '/users/';
 

@@ -3,6 +3,9 @@
     "MONGO_ATLAS_PSW": "LixcfGOg6dwrDXrB",
     "MONGO_DB_NAME": "node-angular",
     "JWT_SECRET_KEY": "GlNcAuQGzYLkvSyHvT1MkQ==",
-    "JWT_SECRET_KEY_REFRESH": "IcU0d71mA388lsYfY3LHtA=="
+    "JWT_SECRET_KEY_REFRESH": "IcU0d71mA388lsYfY3LHtA==",
+    "NODEMAILER_SERVICE": "gmail",
+    "NODEMAILER_AUTH_USER": "sumbulweb@gmail.com",
+    "NODEMAILER_AUTH_PSW": "51625162dL."
   }
 }

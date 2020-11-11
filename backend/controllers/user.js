@@ -3,6 +3,7 @@ const jwt = require( 'jsonwebtoken' ); // Import Bcrypt package
 const path = require( 'path' ); // Import path of Node.js
 const globals = require( '../globals' ); // Import Post routes
 const User = require( '../models/user' ); // Import Express package
+const emailService = require('../services/email');
 
 const PATHS = globals.CONSTANTS.PATHS;
 const tokenList = {}
@@ -231,4 +232,13 @@ exports.rejectToken = ( req, res, next ) => {
     delete tokenList[ req.body.refreshToken ]
   }
   res.status( 204 ); // 204 code for no content (no message body)
+}
+
+exports.sendEmail = ( req, res, next ) => {
+  emailService( req.body ).then(
+    result => {
+      res.status( 200 ).json( { message: 'Email Sent successful!' } );
+    } ).catch( error => {
+      res.status( 500 ).json( { message: 'Sending Email failed!' } );
+    } );
 }

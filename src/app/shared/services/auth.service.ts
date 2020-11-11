@@ -1,4 +1,4 @@
-import { environment } from './../../../environments/environment';
+import { environment } from 'src/environments/environment';
 import { SnackBarService } from './snack-bar.service';
 import { DialogData } from '../models/dialog.model';
 import { DialogComponent } from '../components/dialog/dialog.component';
@@ -166,6 +166,13 @@ export class AuthService {
     this.userService.setUser( this.userId );
     this.localStorageService.deleteLocalStorage();
     this.router.navigate( [ PATHS.HOME ] );
+  }
+
+  sendEmail( data ): void {
+    this.http.post<{ message: string }>( BACKEND_URL + 'email', {} )
+      .subscribe( responseData => {
+        console.log(responseData);
+      } );
   }
 
   /*

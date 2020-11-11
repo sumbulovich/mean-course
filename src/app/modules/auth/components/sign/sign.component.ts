@@ -1,3 +1,4 @@
+import { EmailService } from './../../../../shared/services/email.service';
 import { ResetFieldDirective } from 'src/app/shared/directives';
 import { User, AuthData } from 'src/app/shared/models';
 import { AuthService } from 'src/app/shared/services';
@@ -67,6 +68,10 @@ export class SignComponent implements OnInit, OnDestroy {
       const authData: AuthData = { email: form.value.email, password: form.value.password, remember: form.value.remember };
       this.authService.signIn( authData );
     }
+  }
+
+  onSendEmail(): void {
+    this.authService.sendEmail({});
   }
 
   ngOnDestroy(): void {

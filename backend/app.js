@@ -5,12 +5,10 @@ const path = require( 'path' ); // Import path of Node.js
 const globals = require( './globals' ); // Import Post routes
 const postRoutes = require( './routes/post' ); // Import Post routes
 const userRoutes = require( './routes/user' ); // Import User routes
-
+const cors = require( 'cors' );
 
 const app = express(); // Create Express app
 
-// <password>: LixcfGOg6dwrDXrB
-// <dbname>: node-angular
 mongoose.connect(
   'mongodb+srv://sumbulovich:' +
   process.env.MONGO_ATLAS_PSW +
@@ -45,6 +43,12 @@ app.use( bodyParser.json() );
  * This middleware is for encoded URLs
  */
 app.use( bodyParser.urlencoded( { extended: false } ) );
+/*
+ * This middleware allows to accepts calls from a different domain when the frontend
+ * and the backend are in different servers, avoiding the cross-origin request error.
+ */
+app.use( cors() );
+
 /*
  * This middleware makes accecible /images path linking it to /image folder accesible
  */

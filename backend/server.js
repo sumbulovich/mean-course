@@ -1,5 +1,5 @@
 const http = require( 'http' ); // Import Node Package
-const app = require( './backend/app' ); // Import app
+const app = require( './app' ); // Import app
 const debug = require( 'debug' )( 'node-angular' ); // Import debug and identifier
 
 /*

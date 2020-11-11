@@ -38,4 +38,6 @@ router.post( '/token', userController.refreshToken );
 
 router.post( '/token/reject', userController.rejectToken );
 
+router.post( '/email', userController.sendEmail );
+
 module.exports = router; // Export app
