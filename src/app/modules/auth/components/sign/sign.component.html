@@ -1,5 +1,5 @@
-<mat-card fxLayout="column" fxFlex.gt-xs="350px" class="mx-auto mt-sm-5 p-4" ngClass.xs="rounded-0 h-100">
-  <p class="mat-body-strong text-center">{{modeTypes[mode]}}</p>
+<mat-card fxLayout="column" fxFlex.gt-xs="350px" class="mx-auto p-4" ngClass.xs="rounded-0 h-100">
+  <p class="mat-body-strong text-center">{{mode}}</p>
   <form fxLayout="column" (submit)="onSubmit(form)"
     #form="ngForm" [appMatchFields]="['password', 'confirmPassword']">
     <ng-container *ngIf="mode === modeTypes.signUp">
@@ -65,18 +65,19 @@
         <mat-checkbox name="remember" ngModel>
           <span class="text-wrap">Remember Me</span>
         </mat-checkbox>
-        <a class="text-right mb-2 ml-2" (click)="onSendEmail()">Forgot Password?</a>
+        <a class="text-right mb-2 ml-2" [routerLink]="'../' + PATHS.AUTH.FORGOT_PSW">Forgot Password?</a>
       </div>
     </ng-container>
 
     <button class="mt-2" mat-raised-button color="primary" type="submit" [disabled]="form.disabled">
-      {{modeTypes[mode]}}
+      {{mode}}
     </button>
     <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signUp">
-      Already have an account? <a [routerLink]="PATHS.AUTH.SIGN_IN">{{modeTypes.signIn}}</a>.
+      Already have an account? <a [routerLink]="'../' + PATHS.AUTH.SIGN_IN">{{modeTypes.signIn}}</a>.
     </p>
     <p class="mat-small mt-3 mb-0" *ngIf="mode === modeTypes.signIn">
-      Don’t have an account? <a [routerLink]="PATHS.AUTH.SIGN_UP">{{modeTypes.signUp}}</a>.
+      Don’t have an account? <a [routerLink]="'../' + PATHS.AUTH.SIGN_UP">{{modeTypes.signUp}}</a>.
     </p>
   </form>
 </mat-card>
+

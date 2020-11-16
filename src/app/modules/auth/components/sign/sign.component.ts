@@ -1,19 +1,24 @@
 import { EmailService } from './../../../../shared/services/email.service';
 import { ResetFieldDirective } from 'src/app/shared/directives';
-import { User, AuthData } from 'src/app/shared/models';
+import { User, AuthData, EmailData } from 'src/app/shared/models';
 import { AuthService } from 'src/app/shared/services';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import { Component, OnInit, ViewChild, OnDestroy, ViewChildren, QueryList } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  OnDestroy,
+  ViewChildren,
+  QueryList,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { PATHS , PASSWORD_PATTERN} from 'src/app/shared/constants/globals';
+import { PATHS, PASSWORD_PATTERN} from 'src/app/shared/constants/globals';
 
 enum Mode {
   signIn = 'Log in',
   signUp = 'Sign up',
-  'Log in' = signIn,
-  'Sign up' = signUp
 }
 
 @Component( {
@@ -34,7 +39,8 @@ export class SignComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private emailService: EmailService
   ) { }
 
   ngOnInit(): void {
@@ -68,10 +74,6 @@ export class SignComponent implements OnInit, OnDestroy {
       const authData: AuthData = { email: form.value.email, password: form.value.password, remember: form.value.remember };
       this.authService.signIn( authData );
     }
-  }
-
-  onSendEmail(): void {
-    this.authService.sendEmail({});
   }
 
   ngOnDestroy(): void {

@@ -3,8 +3,10 @@ export const PATHS = {
   NOT_FOUND: '404',
   AUTH: {
     ROOT: 'auth',
-    SIGN_IN: 'signin',
-    SIGN_UP: 'signup',
+    SIGN_IN: 'sign-in',
+    SIGN_UP: 'sign-up',
+    RESET_PSW: 'reset-password',
+    FORGOT_PSW: 'forgot-password'
   },
   ACCOUNT: {
     ROOT: 'account',

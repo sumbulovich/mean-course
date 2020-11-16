@@ -29,9 +29,7 @@ exports.createUser = ( req, res, next ) => {
         } ); // user.save()
       } )
       .catch( error => {
-        res.status( 500 ).json( {
-          message: 'User already exist!',
-        } );
+        res.status( 500 ).json( { message: 'User already exist!' } );
       } );
   } );
 }
@@ -70,9 +68,8 @@ exports.signUser = ( req, res, next ) => {
       } ); // 200 code for success
     } )
     .catch( error => {
-      res.status( 401 ).json( {
-        message: 'Authentication failed!',
-      } ); // 401 code for authentication denied
+      res.status( 401 ).json( { message: 'Authentication failed!' } );
+      // 401 code for authentication denied
     } );
 }
 
@@ -135,7 +132,8 @@ exports.updateUserPassword = ( req, res, next ) => {
     } )
     .then( hash => {
       if ( !hash ) {
-        res.status( 401 ).json( { message: 'Invalid password!' } ); // 401 code for authentication denied
+        res.status( 401 ).json( { message: 'Invalid password!' } );
+        // 401 code for authentication denied
         return;
       }
       const conditions = { _id: req.params.id };
@@ -163,7 +161,8 @@ exports.updateUserPassword = ( req, res, next ) => {
         } );
     } )
     .catch( error => {
-      res.status( 401 ).json( { message: 'Authentication failed!' } ); // 401 code for authentication denied
+      res.status( 401 ).json( { message: 'Authentication failed!' } );
+      // 401 code for authentication denied
     } );
 }
 
@@ -175,7 +174,8 @@ exports.getUser = ( req, res, next ) => {
   User.findById( conditions )
     .then( user => {
       if ( !user ) {
-        res.status( 404 ).json( { message: 'User not found!' } ); // 404 code for not found
+        res.status( 404 ).json( { message: 'User not found!' } );
+        // 404 code for not found
         return;
       }
       res.status( 200 ).json( {
@@ -235,8 +235,20 @@ exports.rejectToken = ( req, res, next ) => {
 }
 
 exports.sendEmail = ( req, res, next ) => {
-  emailService( req.body ).then(
-    result => {
+  const conditions = { email: req.body.to };
+  User.exists( conditions )
+    .then( exist => {
+      if ( !exist ) {
+        return;
+      }
+      return emailService( req.body );
+      // 200 code for success
+    } )
+    .then( sentMessageInfo => {
+      if ( !sentMessageInfo ) {
+        res.status( 404 ).json( { message: 'User does not exist!' } );
+        // 404 code for not found
+      }
       res.status( 200 ).json( { message: 'Email Sent successful!' } );
     } ).catch( error => {
       res.status( 500 ).json( { message: 'Sending Email failed!' } );

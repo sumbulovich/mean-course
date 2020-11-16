@@ -1,3 +1,4 @@
+import { LoadingService } from 'src/app/shared/services';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ErrorComponent implements OnInit {
 
-  constructor() { }
+  constructor( private loadingService: LoadingService ) { }
 
   ngOnInit(): void {
+    setTimeout( () => {
+      this.loadingService.setLoadingListener( false );
+    } );
   }
 
 }

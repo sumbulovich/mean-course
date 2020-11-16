@@ -1,15 +1,16 @@
 import { SignComponent } from './components/sign/sign.component';
 import { AuthRoutingModule } from './auth-routing.module';
-import { ResetFieldDirective, MatchFieldsDirective } from 'src/app/shared/directives';
 import { SharedModule } from '../shared.module';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { ForgotComponent } from './components/forgot/forgot.component';
+import { AuthComponent } from './components/auth.component';
 
 @NgModule({
   declarations: [
     SignComponent,
-    MatchFieldsDirective,
-    ResetFieldDirective
+    ForgotComponent,
+    AuthComponent
   ],
   imports: [
     SharedModule,

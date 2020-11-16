@@ -1,12 +1,17 @@
+import { AuthComponent } from './components/auth.component';
+import { ForgotComponent } from './components/forgot/forgot.component';
 import { SignComponent } from './components/sign/sign.component';
 import { PATHS } from 'src/app/shared/constants/globals';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
 const routes: Routes = [
-  { path: PATHS.AUTH.SIGN_IN, component: SignComponent },
-  { path: PATHS.AUTH.SIGN_UP, component: SignComponent },
-  { path: '', redirectTo: PATHS.AUTH.SIGN_IN, pathMatch: 'full' },
+  { path: '', component: AuthComponent, children: [
+    { path: PATHS.AUTH.SIGN_IN, component: SignComponent },
+    { path: PATHS.AUTH.SIGN_UP, component: SignComponent },
+    { path: PATHS.AUTH.FORGOT_PSW, component: ForgotComponent },
+    { path: '', redirectTo: PATHS.AUTH.SIGN_IN, pathMatch: 'full' }
+  ] }
 ];
 
 @NgModule({

@@ -1,3 +1,8 @@
+import { EmailComponent } from './../shared/components/email/email.component';
+import {
+  MatchFieldsDirective,
+  ResetFieldDirective,
+} from 'src/app/shared/directives';
 import { CalcPipe } from 'src/app/shared/pipes/calc.pipe';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -14,9 +19,12 @@ import {
   declarations: [
     LoadingComponent,
     DialogComponent,
+    EmailComponent,
     ImagePickerComponent,
     FormComponent,
-    CalcPipe
+    CalcPipe,
+    MatchFieldsDirective,
+    ResetFieldDirective
   ],
   imports: [
     CommonModule,
@@ -29,9 +37,12 @@ import {
     FlexLayoutModule,
     LoadingComponent,
     DialogComponent,
+    EmailComponent,
     ImagePickerComponent,
     FormComponent,
-    CalcPipe
+    CalcPipe,
+    MatchFieldsDirective,
+    ResetFieldDirective
   ]
 })
 export class SharedModule { }

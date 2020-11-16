@@ -1,0 +1,18 @@
+<mat-card fxLayout="column" fxFlex.gt-xs="350px" class="mx-auto p-4" ngClass.xs="rounded-0 h-100">
+  <p class="mat-body-strong text-center">Did you forget your password?</p>
+  <form fxLayout="column" (submit)="onSubmit(form)" #form="ngForm">
+    <mat-form-field appearance="outline" hideRequiredMarker>
+      <mat-label>E-Mail</mat-label>
+      <input matInput type="email" name="email"
+        ngModel #emailInput="ngModel" email maxlength="64" required>
+      <mat-error *ngIf="emailInput.errors?.required">Required.</mat-error>
+      <mat-error *ngIf="emailInput.errors?.email">Please enter a valid email.</mat-error>
+    </mat-form-field>
+    <button class="mt-2" mat-raised-button color="primary" type="submit">
+      Send recovery email
+    </button>
+    <p class="mat-small mt-3 mb-0">
+      Return to <a [routerLink]="'../' + PATHS.AUTH.SIGN_IN">Log in</a>.
+    </p>
+  </form>
+</mat-card>

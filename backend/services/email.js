@@ -10,9 +10,9 @@ module.exports = ( emailData ) => {
   });
   const mailOptions = {
     from: `"Sumbul Web 👻" <${process.env.NODEMAILER_AUTH_USER}>`,
-    to: 'sumbulovich+web@gmail.com', // Cambia esta parte por el destinatario
-    subject: 'subject',
-    html: 'html'
+    to: emailData.to,
+    subject: emailData.subject,
+    html: emailData.html
   };
   return transporter.sendMail( mailOptions );
 }

@@ -53,15 +53,18 @@ export class PostService {
       } );
   }
 
-  getPost( id: string ): Observable<Post> {
+  getPost( id: string ): void {
     // return { ...this.posts.find( p => p.id === id ) };
-    return this.http
+    this.http
       .get<{ message: string, post: any }>( BACKEND_URL + id )
       .pipe( map( responseData => {
         console.log( responseData.message );
         const postDb = responseData.post;
         return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
-      } ) );
+      } ) )
+      .subscribe( ( post: Post ) => {
+        this.postListener.next( post );
+      }, error => this.router.navigate( [ PATHS.NOT_FOUND ] ) );
   }
 
   addPost( post: Post, image?: Image ): void {
@@ -91,9 +94,7 @@ export class PostService {
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
         this.router.navigate( [ PATHS.POSTS.ROOT ], { state: { pagination: 'last' } } );
-      }, error => {
-        this.postListener.next( null );
-      } );
+      }, error => this.postListener.next( null ) );
   }
 
   updatePost( post: Post, image?: Image ): void {

@@ -60,16 +60,7 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
 
     this.mode = this.postId ? Mode.edit : Mode.create;
     if ( this.mode === Mode.edit ) {
-      this.postService.getPost( this.postId )
-        .subscribe( ( post: Post ) => {
-          this.post = post;
-          this.imagePreview = post.imagePath;
-          this.form.patchValue( {
-            title: post.title,
-            content: post.content,
-          } ); // .setValue sets values of all formControls
-          this.loadingService.setLoadingListener( false );
-        } );
+      this.postService.getPost( this.postId );
     }
 
     this.postListenerSub = this.postService.getPostListener()
@@ -78,7 +69,15 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
           this.showFormError( 'Error' );
           this.form.enable();
           this.isSaved = false;
+          return;
         }
+        this.post = post;
+        this.imagePreview = post.imagePath;
+        this.form.patchValue( {
+          title: post.title,
+          content: post.content,
+        } ); // .setValue sets values of all formControls
+        this.loadingService.setLoadingListener( false );
       } );
   }
 
