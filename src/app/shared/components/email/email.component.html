@@ -1,2 +1,1 @@
-<p style="background: yellow;">Hi {{email.to}}</p>
-<p>{{email.text}}</p>
+<div [innerHTML]="email.html | sanitizeHtml"></div>

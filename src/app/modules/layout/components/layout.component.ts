@@ -2,7 +2,7 @@ import { EmailComponent } from 'src/app/shared/components/email/email.component'
 import { SidenavService } from 'src/app/shared/services';
 import { ACCOUNT_LINKS } from 'src/app/shared/constants/globals';
 import { filter } from 'rxjs/operators';
-import { AuthService, LoadingService, SnackBarService, EmailService } from 'src/app/shared/services';
+import { AuthService, LoadingService, SnackBarService, CodeService } from 'src/app/shared/services';
 import { EmailData, Link } from 'src/app/shared/models';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { MatSnackBarRef } from '@angular/material/snack-bar';
@@ -38,7 +38,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private snackBarService: SnackBarService,
     private loadingService: LoadingService,
     private sidenavService: SidenavService,
-    private emailService: EmailService
+    private codeService: CodeService
   ) {
     this.router.events.pipe(
       filter( ( routerEvent: RouterEvent ) => routerEvent instanceof NavigationStart )
@@ -80,7 +80,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
     setTimeout( () => {
       this.isDomReady = true;
-      this.emailService.setEmailContainer( this.emailContainer );
+      this.codeService.setEmailContainer( this.emailContainer );
     } );
   }
 

@@ -1,3 +1,4 @@
+import { ResetComponent } from './components/reset/reset.component';
 import { AuthComponent } from './components/auth.component';
 import { ForgotComponent } from './components/forgot/forgot.component';
 import { SignComponent } from './components/sign/sign.component';
@@ -10,6 +11,7 @@ const routes: Routes = [
     { path: PATHS.AUTH.SIGN_IN, component: SignComponent },
     { path: PATHS.AUTH.SIGN_UP, component: SignComponent },
     { path: PATHS.AUTH.FORGOT_PSW, component: ForgotComponent },
+    { path: PATHS.AUTH.RESET_PSW + '/:codeId', component: ResetComponent },
     { path: '', redirectTo: PATHS.AUTH.SIGN_IN, pathMatch: 'full' }
   ] }
 ];

@@ -1,5 +1,5 @@
 import { PASSWORD_PATTERN } from './../../../../shared/constants/globals';
-import { PasswordData, User } from './../../../../shared/models/auth.model';
+import { AuthData, User } from './../../../../shared/models/auth.model';
 import { UserService } from 'src/app/shared/services/user.service';
 import { matchFields } from 'src/app/shared/validators/match-fields.validator';
 import { FormControl, FormGroup, Validators, NgForm } from '@angular/forms';
@@ -55,10 +55,11 @@ export class ChangePasswordComponent implements OnInit {
       return;
     }
     this.form.disable();
-    const passwordData: PasswordData = {
+    const authData: AuthData = {
+      email: this.userService.getUser().email,
       password: this.form.value.password,
       newPassword: this.form.value.newPassword
     };
-    this.userService.updateUserPassword( passwordData );
+    this.userService.updateUserPassword( authData );
   }
 }

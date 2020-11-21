@@ -1,6 +1,6 @@
 import { SnackBarService } from './snack-bar.service';
 import { environment } from './../../../environments/environment';
-import { User, PasswordData, Image } from '../models';
+import { User, Image, AuthData } from '../models';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
@@ -78,7 +78,7 @@ export class UserService {
       formData.append( 'image', image.thumbnail, fileName);
     }
     this.http
-      .put<{ message: string, user: any }>( BACKEND_URL  + user.id, formData )
+      .put<{ message: string, user: any }>( BACKEND_URL, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
         const userDb = responseData.user;
@@ -88,9 +88,9 @@ export class UserService {
       }, error => this.userListener.next( null ) ); // We can use PUT or PATCH methods
   }
 
-  updateUserPassword( passwordData: PasswordData ): void {
+  updateUserPassword( authData: AuthData ): void {
     this.http
-      .put<{ message: string, user: any }>( BACKEND_URL  + 'password/' + this.user.id, passwordData )
+      .put<{ message: string, user: any }>( BACKEND_URL  + 'password/', authData )
       .subscribe( responseData => {
         console.log( responseData.message );
         this.snackBarService.open( responseData.message, null, {

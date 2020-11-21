@@ -1,3 +1,4 @@
+import { SanitizeHtmlPipe } from './../shared/pipes/sanitize-html.pipe';
 import { EmailComponent } from './../shared/components/email/email.component';
 import {
   MatchFieldsDirective,
@@ -23,6 +24,7 @@ import {
     ImagePickerComponent,
     FormComponent,
     CalcPipe,
+    SanitizeHtmlPipe,
     MatchFieldsDirective,
     ResetFieldDirective
   ],
@@ -41,6 +43,7 @@ import {
     ImagePickerComponent,
     FormComponent,
     CalcPipe,
+    SanitizeHtmlPipe,
     MatchFieldsDirective,
     ResetFieldDirective
   ]

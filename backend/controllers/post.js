@@ -66,7 +66,7 @@ exports.updatePost = ( req, res, next ) => {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ find: post } };
+      req.data = { ...req.data, ...{ previousDocument: post } };
       res.status( 200 ).json( { message: 'Post replaced successful!' } );
       next();
     } ) // .updateOne method is provided by Mongoose to its models
@@ -113,13 +113,18 @@ exports.getPost = ( req, res, next ) => {
   const conditions = req.params.id;
   Post.findById( conditions )
     .then( post => {
+      if ( !post ) {
+        res.status( 404 ).json( { message: 'Post not found!' } );
+        // 404 code for not found
+        return;
+      }
       res.status( 200 ).json( {
         message: 'Post fetched successfully!',
         post: post
       } ); // 200 code for success
     } ) // .find method is provided by Mongoose to its models
     .catch( error => {
-      res.status( 404 ).json( { message: 'Post not found!' } ); // 404 code for not found
+      res.status( 500 ).json( { message: 'Fetching Post failed!' } );
     } );
 }
 
@@ -134,7 +139,7 @@ exports.deletePost = ( req, res, next ) => {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ find: oldPost } };
+      req.data = { ...req.data, ...{ previousDocument: oldPost } };
       res.status( 200 ).json( { message: 'Post deleted successful!' } );
       next();
     } ) // .deleteOne method is provided by Mongoose to its models

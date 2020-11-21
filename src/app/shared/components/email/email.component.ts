@@ -1,4 +1,3 @@
-import { EmailService } from 'src/app/shared/services';
 import { Component, OnInit, Input, ElementRef, Output, EventEmitter } from '@angular/core';
 import { EmailData } from '../../models';
 

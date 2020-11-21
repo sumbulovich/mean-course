@@ -19,25 +19,35 @@ router.use( oneTime( fileService.createDirectories( FILE_PATH_MAP ) ) );
 
 router.post( '/signup', userController.createUser );
 
-router.post( '/signin', userController.signUser );
+router.post( '/signin', userController.validatePassword, userController.signUser );
 
 router.put(
-  '/:id', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
+  '', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
   userController.updateUser, fileService.deleteFile( FILE_PATH_MAP ),
 );
 
-router.put( '/password/:id', authService.checkToken, userController.updateUserPassword );
+router.put(
+  '/password', authService.checkToken, userController.validatePassword,
+  userController.updateUserPassword
+);
 // .put replace an element by a new one
 // .patch update an element with new values
 
 router.get( '/:id', userController.getUser );
 
-router.delete( '/:id', authService.checkToken, userController.deleteUser, fileService.deleteFile( FILE_PATH_MAP ) );
+router.delete(
+  '/:id', authService.checkToken, userController.deleteUser,
+  fileService.deleteFile( FILE_PATH_MAP )
+);
 
 router.post( '/token', userController.refreshToken );
 
 router.post( '/token/reject', userController.rejectToken );
 
 router.post( '/email', userController.sendEmail );
+
+router.get( '/code/:id', userController.validateCode );
+
+router.put( '/code/:id', userController.deleteCode, userController.updateUserPassword );
 
 module.exports = router; // Export app

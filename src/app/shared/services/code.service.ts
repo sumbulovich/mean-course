@@ -11,8 +11,9 @@ const BACKEND_URL = environment.apiUrl + '/users/';
 @Injectable({
   providedIn: 'root'
 })
-export class EmailService {
+export class CodeService {
   private emailListener = new Subject<boolean>();
+  private codeListener = new Subject<boolean>();
   private emailContainer: ViewContainerRef;
 
   constructor(
@@ -24,6 +25,10 @@ export class EmailService {
     return this.emailListener.asObservable();
   }
 
+  getCodeListener(): Observable<boolean> {
+    return this.codeListener.asObservable();
+  }
+
   setEmailContainer( emailContainer: ViewContainerRef ): void {
     this.emailContainer = emailContainer;
   }
@@ -31,9 +36,29 @@ export class EmailService {
   sendEmail( email: EmailData ): void {
     this.http.post<{ message: string }>( BACKEND_URL + 'email', email )
       .subscribe( responseData => {
-        console.log(responseData);
+        console.log( responseData.message );
         this.emailListener.next( true );
-      } );
+      },
+      error => this.emailListener.next( false ) );
+  }
+
+  validateCode( codeId: string ): void {
+    this.http.get<{ message: string }>( BACKEND_URL + 'code/' + codeId )
+      .subscribe( responseData => {
+        console.log( responseData.message );
+        this.codeListener.next( true );
+      },
+      error => this.codeListener.next( false ) );
+  }
+
+  resetPassword( codeId: string, newPassword: string ): void {
+    console.log('newPassword', newPassword);
+    this.http.put<{ message: string }>( BACKEND_URL + 'code/' + codeId, { newPassword } )
+      .subscribe( responseData => {
+        console.log( responseData.message );
+        this.codeListener.next( true );
+      },
+      error => this.codeListener.next( false ) );
   }
 
   createEmailComponent( email: EmailData ): void {

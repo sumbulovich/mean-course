@@ -1,12 +1,9 @@
 export interface AuthData {
   email: string;
   password: string;
+  newPassword?: string;
   remember?: boolean;
-}
-
-export interface PasswordData {
-  password: string;
-  newPassword: string;
+  expiresIn?: number;
 }
 
 export interface LocalStorageData {

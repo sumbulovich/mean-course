@@ -61,9 +61,7 @@ export class AuthService {
     this.userService.addUser( user ).subscribe( () => {
       const authData: AuthData = { email: user.email, password: user.password };
       this.signIn( authData );
-    }, error => {
-      this.authListener.next( false );
-    } );
+    }, error => this.authListener.next( false ) );
   }
 
   /*
@@ -72,23 +70,21 @@ export class AuthService {
   closeAccount(): void {
     this.userService.deleteUser().subscribe( () => {
       this.signOut();
-    }, error => {
-      this.authListener.next( false );
-    } );
+    }, error => this.authListener.next( false ) );
   }
 
   /*
   * Sign in a User and set a session Token on the Local Storage
   */
   signIn( authData: AuthData ): void {
-    const expiresIn: number = authData.remember ?
+    authData.expiresIn = authData.remember ?
       ms( TIMINGS.TOKEN_EXPIRATION.REMEMBER ) : ms( TIMINGS.TOKEN_EXPIRATION.DEFAULT );
     this.http
       .post<{ message: string, token: string, refreshToken: string, userId: string }>
-      ( BACKEND_URL + 'signin', { authData, expiresIn } )
+      ( BACKEND_URL + 'signin', authData )
       .subscribe( responseData => {
         console.log( responseData.message );
-        const expirationDate: Date = this.dateTimeConverter( expiresIn ) as Date;
+        const expirationDate: Date = this.dateTimeConverter( authData.expiresIn ) as Date;
         this.setToken( responseData.token, expirationDate );
         this.userService.setUser( responseData.userId );
         this.userId = responseData.userId;
@@ -100,9 +96,7 @@ export class AuthService {
         };
         this.localStorageService.setLocalStorage( localStorageData );
         this.router.navigate( [ PATHS.HOME ] );
-      }, error => {
-        this.authListener.next( false );
-      } );
+      }, error => this.authListener.next( false ) );
   }
 
   /*

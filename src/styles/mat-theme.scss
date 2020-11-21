@@ -30,6 +30,18 @@
 // Include theme styles for your custom components.
 @include custom-theme($light-theme);
 
+// Override typography CSS classes (e.g., mat-h1, mat-display-1, mat-typography, etc.).
+// @include mat-base-typography($custom-typography);
+
+// Override typography for a specific Angular Material components.
+// @include mat-checkbox-typography($custom-typography);
+
+// Override typography for all Angular Material, including mat-base-typography and all components.
+// @include angular-material-typography($custom-typography);
+
+// Override the typography in the core CSS.
+// @include mat-core($custom-typography);
+
 /*
 * Customizing Angular Material component styles
 * Add this to your global stylesheet after your theme setup

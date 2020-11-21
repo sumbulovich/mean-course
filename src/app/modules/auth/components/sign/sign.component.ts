@@ -1,6 +1,6 @@
-import { EmailService } from './../../../../shared/services/email.service';
+import { CodeService } from '../../../../shared/services/code.service';
 import { ResetFieldDirective } from 'src/app/shared/directives';
-import { User, AuthData, EmailData } from 'src/app/shared/models';
+import { User, AuthData } from 'src/app/shared/models';
 import { AuthService } from 'src/app/shared/services';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
@@ -39,8 +39,7 @@ export class SignComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
-    private emailService: EmailService
+    private router: Router
   ) { }
 
   ngOnInit(): void {
