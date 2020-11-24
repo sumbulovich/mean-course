@@ -1,5 +1,4 @@
 const jwt = require( 'jsonwebtoken' ); // Import Bcrypt package
-const bcrypt = require( 'bcrypt' ); // Import Bcrypt package
 
 exports.checkToken = ( req, res, next ) => {
   try {

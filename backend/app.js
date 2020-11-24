@@ -70,6 +70,11 @@ app.use(
   express.static( path.join( PATHS.ROOT, PATHS.IMAGES, PATHS.USERS, PATHS.THUMBNAILS ) )
 );
 /*
+app.use( '/', express.static( path.join( PATHS.ROOT, 'dist') ) );
+// If we want to deploy One Combined App
+*/
+
+/*
  * This middleware defines the Headers of the server
  */
 app.use( (req, res, next ) => {
@@ -94,5 +99,9 @@ app.use( (req, res, next ) => {
 const API = globals.CONSTANTS.API;
 app.use( API.POSTS, postRoutes ); // Use Post routes with the path '/api/post'
 app.use( API.USERS, userRoutes ); // Use User routes with the path '/api/user'
-
+/*
+app.use( ( req, res, next ) => {
+  res.sendFile( path.join( __dirname, 'dist/index.html' ) );
+} ); // If we want to deploy One Combined App
+*/
 module.exports = app; // Export app

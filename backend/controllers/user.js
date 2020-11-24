@@ -1,4 +1,4 @@
-const bcrypt = require( 'bcrypt' ); // Import Bcrypt package
+const bcrypt = require( 'bcryptjs' ); // Import Bcryptjs package
 const jwt = require( 'jsonwebtoken' ); // Import Bcrypt package
 const path = require( 'path' ); // Import path of Node.js
 const globals = require( '../globals' ); // Import Post routes

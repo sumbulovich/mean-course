@@ -1,0 +1,21 @@
+._loader {
+  margin: 0 auto;
+  border: 10px solid #3f51b5;
+  border-top-color: transparent;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  animation: _spin 1s linear infinite;
+  position: fixed;
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+}
+
+@keyframes _spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
