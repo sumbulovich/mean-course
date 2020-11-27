@@ -5,6 +5,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { PATHS } from 'src/app/shared/constants/globals';
+import { MatAccordion } from '@angular/material/expansion';
 
 enum Pagination {
   first = 0,

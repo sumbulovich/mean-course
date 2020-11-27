@@ -1,7 +1,7 @@
 const http = require( 'http' ); // Import Node Package
 const app = require( './app' ); // Import app
 const debug = require( 'debug' )( 'node-angular' ); // Import debug and identifier
-
+const socketIO = require( 'socket.io' )
 /*
  * Check if the port is valid
  */
@@ -26,7 +26,7 @@ const onError = error => {
   }
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + port;
 
-  switch( error.code ) {
+  switch ( error.code ) {
     case "EACCES":
       console.log( bind + " requires elevaded privileges" );
       process.exit( 1 );
@@ -61,3 +61,16 @@ const server = http.createServer( app ); // Create Server
 server.on( "error", onError );
 server.on( "listening", onListening );
 server.listen( port ); // Set listen port
+
+const serverOptions = {
+  // path: '/my-path', // default: '/socket.io'
+  // cors: {
+  //   origin: '*',
+  //   methods: [ 'GET', 'POST'],
+  //   credentials: true
+  // },
+  pingTimeout: 60000
+} // https://socket.io/docs/v3/server-api
+
+const io = socketIO( server, serverOptions );
+require('./socket')( io );

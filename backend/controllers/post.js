@@ -61,13 +61,17 @@ exports.updatePost = ( req, res, next ) => {
   } ); // body is a new field edited by BodyParser package
   const conditions = { _id: req.params.id, creator: req.data.tokenPayload.userId };
   Post.findOneAndUpdate( conditions, update )
-    .then( post => {
-      if ( !post ) {
+    .then( oldPost => {
+      if ( !oldPost ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ previousDocument: post } };
-      res.status( 200 ).json( { message: 'Post replaced successful!' } );
+      req.data = { ...req.data, ...{ previousDocument: oldPost } };
+      const newPost = { ...oldPost.toJSON(), ...update.toJSON() };
+      res.status( 200 ).json( {
+         message: 'Post replaced successful!',
+         post: newPost
+      } );
       next();
     } ) // .updateOne method is provided by Mongoose to its models
     .catch( error => {
@@ -140,7 +144,10 @@ exports.deletePost = ( req, res, next ) => {
         return;
       }
       req.data = { ...req.data, ...{ previousDocument: oldPost } };
-      res.status( 200 ).json( { message: 'Post deleted successful!' } );
+      res.status( 200 ).json( {
+        message: 'Post deleted successful!',
+        post: oldPost
+      } );
       next();
     } ) // .deleteOne method is provided by Mongoose to its models
     .catch( error => {

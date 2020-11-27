@@ -1,9 +1,11 @@
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
+import { AuthService } from './auth.service';
 import { environment } from './../../../environments/environment';
 import { Post, Image } from '../../shared/models';
 import { PATHS } from '../../shared/constants/globals';
 import { PageEvent } from '@angular/material/paginator';
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -18,10 +20,44 @@ export class PostService {
   private postsListener = new Subject<Post[]>();
   private postListener = new Subject<Post>();
   private pageData: PageEvent = { pageSize: 5, pageIndex: 0, length: 0 };
+  private postSocket: Socket;
   constructor(
     private http: HttpClient,
-    private router: Router
-  ) { }
+    private router: Router,
+    private authService: AuthService
+  ) {
+  }
+
+  connectPostSocket(): void {
+    const socketIoConfig: SocketIoConfig = {
+      url: environment.socketUrl, options: {}
+    };
+    this.postSocket = new Socket( socketIoConfig );
+
+    const roomName = 'post';
+    this.postSocket.on( 'connect', () => {
+      console.log('Socket connected');
+      this.postSocket.emit( 'room', roomName );
+    } );
+
+    this.postSocket.on( 'disconnect', () => {
+      console.log('Socket disconnected');
+    } );
+
+    this.postSocket.fromEvent( 'emit' )
+      .subscribe( ( post: Post ) => {
+        console.log('Socket emitting');
+        if ( post.creator !== this.authService.getUserId() ) {
+          this.getPosts( this.pageData );
+        }
+      } );
+  }
+
+  disconnectPostSocket(): void {
+    if ( this.postSocket ) {
+      this.postSocket.disconnect();
+    }
+  }
 
   getPostsListener(): Observable<Post[]> {
     return this.postsListener.asObservable();
@@ -67,15 +103,14 @@ export class PostService {
       }, error => this.router.navigate( [ PATHS.NOT_FOUND ] ) );
   }
 
-  addPost( post: Post, image?: Image ): void {
+  addPost( postData: Post, image?: Image ): void {
     const formData = new FormData(); // FormData object accept values and files
-    formData.append( 'title', post.title );
-    formData.append( 'content', post.content );
+    formData.append( 'title', postData.title );
+    formData.append( 'content', postData.content );
     if ( image ) {
-      console.log();
-      const fileName: string = post.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
-      formData.append( 'image', image.image, fileName);
-      formData.append( 'image', image.thumbnail, fileName);
+      const fileName: string = postData.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
+      formData.append( 'image', image.image, fileName );
+      formData.append( 'image', image.thumbnail, fileName );
     }
     this.http
       .post<{ message: string, post: any }>( BACKEND_URL, formData )
@@ -86,46 +121,49 @@ export class PostService {
         const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
         this.pageData.pageIndex = lastPageIndex;
         */ // Not necessary update pageData because state.pagination
-        /*
         const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
+        /*
         this.posts.push( post );
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
+        this.postSocket.emit( 'emit', post );
         this.router.navigate( [ PATHS.POSTS.ROOT ], { state: { pagination: 'last' } } );
       }, error => this.postListener.next( null ) );
   }
 
-  updatePost( post: Post, image?: Image ): void {
+  updatePost( postData: Post, image?: Image ): void {
     const formData = new FormData(); // FormData object accept values and files
-    formData.append( 'id', post.id );
-    formData.append( 'title', post.title );
-    formData.append( 'content', post.content );
-    formData.append( 'imagePath', post.imagePath );
+    formData.append( 'id', postData.id );
+    formData.append( 'title', postData.title );
+    formData.append( 'content', postData.content );
+    formData.append( 'imagePath', postData.imagePath );
     if ( image ) {
-      const fileName: string = post.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
-      formData.append( 'image', image.image, fileName);
-      formData.append( 'image', image.thumbnail, fileName);
+      const fileName: string = postData.title.replace( /[^a-zA-Z0-9]/g, '' ).slice( 0, 10 ) + '-' + Date.now();
+      formData.append( 'image', image.image, fileName );
+      formData.append( 'image', image.thumbnail, fileName );
     }
     this.http
-      .put<{ message: string }>( BACKEND_URL  + post.id, formData )
+      .put<{ message: string, post: any }>( BACKEND_URL + postData.id, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
-        /*
         const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
+        /*
         this.posts.push( post );
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
+        this.postSocket.emit( 'emit', post );
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }, error => this.postsListener.next( null ) ); // We can use PUT or PATCH methods
   }
 
   deletePost( postId: string, pageData?: PageEvent ): void {
+    const postData: Post = this.posts.find( post => post.id === postId );
     this.http
-      .delete<{ message: string }>( BACKEND_URL + '/' + postId )
+      .delete<{ message: string, post: any }>( BACKEND_URL + '/' + postId )
       .subscribe( responseData => {
         console.log( responseData.message );
         this.pageData.length--;
@@ -133,17 +171,20 @@ export class PostService {
         if ( this.pageData.pageIndex > lastPageIndex ) {
           this.pageData.pageIndex = lastPageIndex;
         }
+        const postDb = responseData.post;
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
         /*
         const postIndex: number = this.posts.findIndex( p => p.id !== postId );
         const post = this.posts.splice( postIndex, 1 );
         this.postUpdated.next( [ ...this.posts ] );
         this.postListener.next( post );
         */ // Not necessary postUpdated because we are navigating or calling getPost
+        this.postSocket.emit( 'emit', post );
         if ( pageData ) {
           this.getPosts( pageData );
-          return;
-        } // If it's deleted from post-list
-        this.router.navigate( [ PATHS.POSTS.ROOT ] );
+        } else {
+          this.router.navigate( [ PATHS.POSTS.ROOT ] );
+        } // If it's deleted from post-list of post-create
       }, error => this.postListener.next( null ) );
   }
 }

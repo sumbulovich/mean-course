@@ -43,11 +43,6 @@ app.use( bodyParser.json() );
  * This middleware is for encoded URLs
  */
 app.use( bodyParser.urlencoded( { extended: false } ) );
-/*
- * This middleware allows to accepts calls from a different domain when the frontend
- * and the backend are in different servers, avoiding the cross-origin request error.
- */
-app.use( cors() );
 
 /*
  * This middleware makes accecible /images path linking it to /image folder accesible
@@ -77,24 +72,31 @@ app.use( '/', express.static( path.join( PATHS.ROOT, 'dist') ) );
 /*
  * This middleware defines the Headers of the server
  */
-app.use( (req, res, next ) => {
+/*app.use( (req, res, next ) => {
   res.setHeader(
     'Access-Control-Allow-Origin',
     '*'
   ); // Allow to access to all resources
-
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Request-With, Content-Type, Accept, Authorization' // Allow custom Authorization header
   ); // Restrict the incoming request to have the defined headers
-
   res.setHeader(
     'Access-Control-Allow-Methods',
     'GET, POST, PATCH, PUT, DELETE, OPTIONS'
-  ); // Restric wich methods are allowed
-
+  ); // Restrict which methods are allowed
+  // res.setHeader(
+  //   'Access-Control-Allow-Credentials',
+  //   true
+  // );
   next();
-} );
+} );*/
+
+/*
+ * This middleware allows to accepts calls from a different domain when the frontend
+ * and the backend are in different servers, avoiding the cross-origin request error.
+ */
+app.use( cors() );
 
 const API = globals.CONSTANTS.API;
 app.use( API.POSTS, postRoutes ); // Use Post routes with the path '/api/post'

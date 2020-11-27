@@ -9,7 +9,7 @@
 </mat-toolbar>
 
 <div ngClass.gt-xs="p-4">
-  <mat-accordion *ngIf="posts.length; else noPosts">
+  <mat-accordion multi *ngIf="posts.length; else noPosts">
     <mat-expansion-panel *ngFor="let post of posts" ngClass.xs="rounded-0">
       <mat-expansion-panel-header class="mat-body-strong">
         {{post.title}}

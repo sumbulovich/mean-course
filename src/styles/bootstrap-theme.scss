@@ -14,3 +14,7 @@
 button:focus {
   outline: none;
 }
+
+.invisible {
+  opacity: 0; // Fix for visible children
+}
