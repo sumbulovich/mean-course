@@ -13,7 +13,7 @@ const userSchema = mongoose.Schema( {
   password: { type: types.String, required: true },
   passwordLength: { type: types.Number, require: true },
   imagePath: types.String,
-  created: { type: types.Date, required: true }
+  createdAt: { type: types.Date, default: Date.now }
 } );
 
 userSchema.plugin( uniqueValidator ); // .plugin method is Provided by Mongoose to add extra functionalities to a schema

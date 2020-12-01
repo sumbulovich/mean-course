@@ -12,8 +12,6 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router, UrlTree } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
 
-enum Mode { create, edit }
-
 @Component( {
   selector: 'app-post-create',
   templateUrl: './post-create.component.html',
@@ -23,8 +21,6 @@ enum Mode { create, edit }
 export class PostCreateComponent extends FormComponent implements OnInit, OnDestroy {
   postId: string;
   post: Post;
-  modeTypes = Mode;
-  mode: Mode;
   toolbarLinks: Link[];
   readonly PATHS = PATHS;
   private postListenerSub: Subscription;
@@ -38,9 +34,10 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
   ) {
     super( dialogService );
     this.route.paramMap.subscribe( ( paramMap: ParamMap ) => {
-      this.postId = paramMap.get( 'postId' );
-      if ( this.postId ) {
+      const postId = paramMap.get( 'postId' );
+      if ( postId ) {
         this.loadingService.setLoadingListener( true );
+        this.postService.getPost( postId );
       }
     } );
   }
@@ -57,11 +54,6 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
         asyncValidators: [ mimeType ]
       } )
     } );
-
-    this.mode = this.postId ? Mode.edit : Mode.create;
-    if ( this.mode === Mode.edit ) {
-      this.postService.getPost( this.postId );
-    }
 
     this.postListenerSub = this.postService.getPostListener()
       .subscribe( ( post: Post ) => {
@@ -95,7 +87,7 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
     }
     this.form.disable();
     this.isSaved = true;
-    if ( this.mode === Mode.edit ) {
+    if ( this.post ) {
       const post: Post = this.getCurrentPost();
       if ( this.hasChanges( this.post, post ) ) {
         this.postService.updatePost( post, this.image );
@@ -104,7 +96,7 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
       }
     } else {
       const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
-      this.postService.addPost( post, this.image );
+      this.postService.createPost( post, this.image );
     }
   }
 

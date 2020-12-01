@@ -73,4 +73,4 @@ const serverOptions = {
 } // https://socket.io/docs/v3/server-api
 
 const io = socketIO( server, serverOptions );
-require('./socket')( io );
+require('./services/socket')( io );

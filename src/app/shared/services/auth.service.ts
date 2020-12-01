@@ -58,7 +58,7 @@ export class AuthService {
   * Sign in a User and set a session Token on the Local Storage
   */
   signUp( user: User ): void {
-    this.userService.addUser( user ).subscribe( () => {
+    this.userService.createUser( user ).subscribe( () => {
       const authData: AuthData = { email: user.email, password: user.password };
       this.signIn( authData );
     }, error => this.authListener.next( false ) );

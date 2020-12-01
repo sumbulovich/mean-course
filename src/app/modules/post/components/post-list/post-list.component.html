@@ -19,10 +19,10 @@
         <span class="_text-pre">{{post.content}}</span>
       </ng-template>
       <mat-action-row fxLayout fxLayoutAlign="start center" class="py-2"
-        *ngIf="userId === post.creator || post.imagePath">
+        *ngIf="userId === post.userId || post.imagePath">
         <img fxFlexAlign="start" [src]="post.imagePath" [alt]="post.title" height="50" class="border"
           *ngIf="post.imagePath">
-        <div fxLayout fxLayoutAlign="end" fxFlex="grow" *ngIf="userId === post.creator">
+        <div fxLayout fxLayoutAlign="end" fxFlex="grow" *ngIf="userId === post.userId">
           <button mat-button color="primary" [routerLink]="[PATHS.POSTS.EDIT, post.id]">EDIT</button>
           <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</button>
         </div>

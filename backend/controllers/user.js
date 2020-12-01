@@ -4,7 +4,7 @@ const path = require( 'path' ); // Import path of Node.js
 const globals = require( '../globals' ); // Import Post routes
 const User = require( '../models/user' ); // Import Express package
 const Code = require( '../models/code' ); // Import Express package
-const emailService = require('../services/email');
+const emailService = require( '../services/email' );
 
 const PATHS = globals.CONSTANTS.PATHS;
 const tokenList = {}
@@ -21,7 +21,6 @@ exports.createUser = ( req, res, next ) => {
         email: req.body.email,
         password: hash,
         passwordLength: req.body.password.length,
-        created: new Date()
       } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
       User.create( update )
         .then( user => {
@@ -58,18 +57,22 @@ exports.signUser = ( req, res, next ) => {
  * This middleware replace update an element
  */
 exports.updateUser = ( req, res, next ) => {
-  let userImagePath = req.body.imagePath;
+  let imagePath = req.body.imagePath;
   if ( req.files.length ) {
-    userImagePath = `${req.protocol}://${req.get( 'host' )}/` +
-      path.join( PATHS.IMAGES, PATHS.USERS, req.files[0].filename );
+    imagePath = `${req.protocol}://${req.get( 'host' )}/` +
+      path.join( PATHS.IMAGES, PATHS.USERS, req.files[ 0 ].filename );
   }
-  const update = new User( {
+  /*const update = new User( {
     _id: req.body.id,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
-    imagePath: userImagePath
-  } ); // body is a new field edited by BodyParser package
-
+    imagePath: imagePath
+  } );*/
+  const update = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    imagePath: imagePath
+  };
   const conditions = { _id: req.body.id };
   User.findOneAndUpdate( conditions, update )
     .then( oldUser => {
@@ -78,7 +81,7 @@ exports.updateUser = ( req, res, next ) => {
         return;
       }
       req.data = { ...req.data, ...{ previousDocument: oldUser } };
-      const newUser = { ...oldUser.toJSON(), ...update.toJSON() };
+      const newUser = new User( oldUser ).set( update );
       res.status( 200 ).json( {
         message: 'User updated successful!',
         user: newUser
@@ -86,7 +89,7 @@ exports.updateUser = ( req, res, next ) => {
       next();
     } ) // .updateOne method is provided by Mongoose to its models
     .catch( error => {
-      res.status( 500 ).json( {  message: 'Updating User failed!' } );
+      res.status( 500 ).json( { message: 'Updating User failed!' } );
     } );
 }
 
@@ -115,7 +118,7 @@ exports.updateUserPassword = ( req, res, next ) => {
           } );
         } ) // .updateOne method is provided by Mongoose to its models
         .catch( error => {
-          res.status( 500 ).json( {  message: 'Updating User failed!' } );
+          res.status( 500 ).json( { message: 'Updating User failed!' } );
         } );
     } )
     .catch( error => {
@@ -232,13 +235,13 @@ exports.sendEmail = ( req, res, next ) => {
       }
       Code.deleteOne( conditions )
         .then( result => {
-          const conditions = new Code ( { creator: user._id } );
+          const conditions = new Code( { userId: user._id } );
           return Code.create( conditions )
         } )
         .then( code => {
           req.body.html = req.body.html
-            .replace(/#name#/g, user.firstName)
-            .replace(/#code#/g, code._id);
+            .replace( /#name#/g, user.firstName )
+            .replace( /#code#/g, code._id );
           return emailService( req.body );
         } )
         .then( sentMessageInfo => {
@@ -272,7 +275,7 @@ exports.deleteCode = ( req, res, next ) => {
   const conditions = { _id: req.params.id };
   Code.findOneAndDelete( conditions )
     .then( oldCode => {
-      const user = { _id: oldCode.creator  };
+      const user = { _id: oldCode.userId };
       req.data = { ...req.data, ...{ validUser: user } };
       next();
     } )

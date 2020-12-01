@@ -1,3 +1,4 @@
+import { filter, take } from 'rxjs/operators';
 import { AuthService, PostService, LoadingService } from 'src/app/shared/services';
 import { Post } from 'src/app/shared/models';
 import { Router } from '@angular/router';
@@ -28,6 +29,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   private postsListenerSub: Subscription;
   private postListenerSub: Subscription;
   private authListenerSub: Subscription;
+  private postSocketSub: Subscription;
 
   constructor(
     private postService: PostService,
@@ -74,6 +76,12 @@ export class PostListComponent implements OnInit, OnDestroy {
     } );
     this.postListenerSub = this.postService.getPostListener()
       .subscribe( () => this.loadingService.setLoadingListener( false ) );
+
+    this.postSocketSub = this.postService.getPostSocketListener()
+      .subscribe( ( socketId ) => {
+        console.log( `Socket "${socketId}" has emitted` );
+        this.postService.getPosts();
+      } );
   }
 
   onChangePage( pageData: PageEvent ): void {
@@ -91,5 +99,6 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postsListenerSub.unsubscribe();
     this.postListenerSub.unsubscribe();
     this.authListenerSub.unsubscribe();
+    this.postSocketSub.unsubscribe();
   }
 }

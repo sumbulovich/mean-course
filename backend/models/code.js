@@ -5,7 +5,7 @@ mongoose.set( 'useFindAndModify', false );
 
 const types = mongoose.Schema.Types;
 const codeSchema = mongoose.Schema({
-  creator: { type: types.ObjectId, ref: "User", required: true }, // Add a reference to the model
+  userId: { type: types.ObjectId, ref: "User", required: true }, // Add a reference to the model
   createdAt: { type: types.Date, expires: '2d', default: Date.now },
 });
 

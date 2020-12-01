@@ -1,5 +1,4 @@
-import { Socket, SocketIoConfig } from 'ngx-socket-io';
-import { AuthService } from './auth.service';
+import { SocketService } from './socket.service';
 import { environment } from './../../../environments/environment';
 import { Post, Image } from '../../shared/models';
 import { PATHS } from '../../shared/constants/globals';
@@ -7,7 +6,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Injectable } from '@angular/core';
 import { Subject, Observable, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, filter, take } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 const BACKEND_URL = environment.apiUrl + '/posts/';
@@ -20,43 +19,29 @@ export class PostService {
   private postsListener = new Subject<Post[]>();
   private postListener = new Subject<Post>();
   private pageData: PageEvent = { pageSize: 5, pageIndex: 0, length: 0 };
-  private postSocket: Socket;
+  private postSocket: SocketService;
+
   constructor(
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService
-  ) {
-  }
+  ) {}
 
   connectPostSocket(): void {
-    const socketIoConfig: SocketIoConfig = {
-      url: environment.socketUrl, options: {}
-    };
-    this.postSocket = new Socket( socketIoConfig );
-
-    const roomName = 'post';
-    this.postSocket.on( 'connect', () => {
-      console.log('Socket connected');
-      this.postSocket.emit( 'room', roomName );
-    } );
-
-    this.postSocket.on( 'disconnect', () => {
-      console.log('Socket disconnected');
-    } );
-
-    this.postSocket.fromEvent( 'emit' )
-      .subscribe( ( post: Post ) => {
-        console.log('Socket emitting');
-        if ( post.creator !== this.authService.getUserId() ) {
-          this.getPosts( this.pageData );
-        }
-      } );
+    this.postSocket = new SocketService();
+    this.postSocket.initSocket( 'post' );
   }
 
   disconnectPostSocket(): void {
-    if ( this.postSocket ) {
-      this.postSocket.disconnect();
-    }
+    this.postSocket.disconnect();
+  }
+
+  getPostSocketListener( event: string = 'emitted' ): Observable<any> {
+    return this.postSocket.fromEvent( event )
+      .pipe( filter( ( socketId: string) => socketId !== this.postSocket.getSocketId() ) );
+  }
+
+  emitPostSocket( event: string = 'emit' ): void {
+    this.postSocket.emit( event, this.postSocket.getSocketId() );
   }
 
   getPostsListener(): Observable<Post[]> {
@@ -71,7 +56,7 @@ export class PostService {
     return this.pageData;
   }
 
-  getPosts( pageData: PageEvent ): void {
+  getPosts( pageData: PageEvent = this.pageData ): void {
     this.pageData = { ...this.pageData, ...pageData };
     const queryParams = `?pagesize=${this.pageData.pageSize}&pageindex=${this.pageData.pageIndex}`;
     this.http
@@ -80,7 +65,7 @@ export class PostService {
         console.log( responseData.message );
         this.pageData = { ...pageData, length: responseData.totalPosts, pageIndex: responseData.pageIndex };
         return responseData.posts.map( ( postDb: any ) => {
-          return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
+          return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
         } );  // Convert DB content to Post model
       } ) )
       .subscribe( ( posts: Post[] ) => {
@@ -103,7 +88,7 @@ export class PostService {
       }, error => this.router.navigate( [ PATHS.NOT_FOUND ] ) );
   }
 
-  addPost( postData: Post, image?: Image ): void {
+  createPost( postData: Post, image?: Image ): void {
     const formData = new FormData(); // FormData object accept values and files
     formData.append( 'title', postData.title );
     formData.append( 'content', postData.content );
@@ -121,14 +106,14 @@ export class PostService {
         const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
         this.pageData.pageIndex = lastPageIndex;
         */ // Not necessary update pageData because state.pagination
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
         /*
+        const postDb = responseData.post;
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
         this.posts.push( post );
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
-        this.postSocket.emit( 'emit', post );
+        this.emitPostSocket();
         this.router.navigate( [ PATHS.POSTS.ROOT ], { state: { pagination: 'last' } } );
       }, error => this.postListener.next( null ) );
   }
@@ -148,14 +133,14 @@ export class PostService {
       .put<{ message: string, post: any }>( BACKEND_URL + postData.id, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
         /*
+        const postDb = responseData.post;
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
         this.posts.push( post );
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
         */ // Not necessary postUpdated because we are navigating to post-list
-        this.postSocket.emit( 'emit', post );
+        this.emitPostSocket();
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }, error => this.postsListener.next( null ) ); // We can use PUT or PATCH methods
   }
@@ -167,19 +152,19 @@ export class PostService {
       .subscribe( responseData => {
         console.log( responseData.message );
         this.pageData.length--;
-        const lastPageIndex = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
-        if ( this.pageData.pageIndex > lastPageIndex ) {
+        const lastPageIndex: number = Math.ceil( this.pageData.length / this.pageData.pageSize ) - 1;
+        if ( this.pageData.pageIndex > lastPageIndex && lastPageIndex > 0 ) {
           this.pageData.pageIndex = lastPageIndex;
         }
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.creator );
         /*
+        const postDb = responseData.post;
+        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
         const postIndex: number = this.posts.findIndex( p => p.id !== postId );
         const post = this.posts.splice( postIndex, 1 );
         this.postUpdated.next( [ ...this.posts ] );
         this.postListener.next( post );
         */ // Not necessary postUpdated because we are navigating or calling getPost
-        this.postSocket.emit( 'emit', post );
+        this.emitPostSocket();
         if ( pageData ) {
           this.getPosts( pageData );
         } else {

@@ -18,8 +18,7 @@ exports.createPost = ( req, res, next ) => {
     title: req.body.title,
     content: req.body.content,
     imagePath: postImagePath,
-    creator: req.data.tokenPayload.userId,
-    created: new Date()
+    userId: req.data.tokenPayload.userId,
   } ); // body is a new field edited by BodyParser package
 
   Post.create( update )
@@ -53,13 +52,20 @@ exports.updatePost = ( req, res, next ) => {
     imagePath = `${req.protocol}://${req.get( 'host' )}/` +
       path.join( PATHS.IMAGES, PATHS.POSTS, req.files[0].filename );
   }
+  /*
   const update = new Post( {
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
     imagePath: imagePath
-  } ); // body is a new field edited by BodyParser package
-  const conditions = { _id: req.params.id, creator: req.data.tokenPayload.userId };
+  } );
+  */
+ const update = {
+    title: req.body.title,
+    content: req.body.content,
+    imagePath: imagePath
+  };
+  const conditions = { _id: req.params.id, userId: req.data.tokenPayload.userId };
   Post.findOneAndUpdate( conditions, update )
     .then( oldPost => {
       if ( !oldPost ) {
@@ -67,7 +73,7 @@ exports.updatePost = ( req, res, next ) => {
         return;
       }
       req.data = { ...req.data, ...{ previousDocument: oldPost } };
-      const newPost = { ...oldPost.toJSON(), ...update.toJSON() };
+      const newPost = new Post( oldPost ).set( update );
       res.status( 200 ).json( {
          message: 'Post replaced successful!',
          post: newPost
@@ -116,6 +122,7 @@ exports.getPosts = ( req, res, next ) => {
 exports.getPost = ( req, res, next ) => {
   const conditions = req.params.id;
   Post.findById( conditions )
+    .select( 'title content imagePath' )
     .then( post => {
       if ( !post ) {
         res.status( 404 ).json( { message: 'Post not found!' } );
@@ -136,7 +143,7 @@ exports.getPost = ( req, res, next ) => {
  * This middleware delete a specific element
  */
 exports.deletePost = ( req, res, next ) => {
-  const conditions = { _id: req.params.id,  creator: req.data.tokenPayload.userId };
+  const conditions = { _id: req.params.id,  userId: req.data.tokenPayload.userId };
   Post.findOneAndDelete( conditions )
     .then( oldPost => {
       if ( !oldPost ) {

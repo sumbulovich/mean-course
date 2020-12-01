@@ -8,7 +8,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 })
 export class PostComponent implements OnInit, OnDestroy {
 
-  constructor( private postService: PostService ) { }
+  constructor(
+    private postService: PostService,
+  ) { }
 
   ngOnInit(): void {
     this.postService.connectPostSocket();

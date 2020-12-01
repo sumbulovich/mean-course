@@ -31,7 +31,7 @@ export class UserService {
   /*
   * Add new User on the Database
   */
-  addUser( user: User ): Observable<any> {
+ createUser( user: User ): Observable<any> {
     return this.http
       .post<{ message: string, user: any }>( BACKEND_URL + 'signup', user )
       .pipe( map( responseData => {
