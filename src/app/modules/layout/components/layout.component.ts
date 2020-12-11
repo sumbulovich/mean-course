@@ -1,3 +1,4 @@
+import { SidebarComponent } from './sidebar/sidebar.component';
 import { EmailComponent } from 'src/app/shared/components/email/email.component';
 import { SidenavService } from 'src/app/shared/services';
 import { ACCOUNT_LINKS } from 'src/app/shared/constants/globals';
@@ -7,7 +8,7 @@ import { EmailData, Link } from 'src/app/shared/models';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { MatSnackBarRef } from '@angular/material/snack-bar';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, ViewContainerRef, ComponentRef, Type } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, ViewContainerRef, ComponentRef, Type, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav';
 
@@ -16,10 +17,11 @@ import { MatDrawer } from '@angular/material/sidenav';
   templateUrl: './layout.component.html',
   styleUrls: [ './layout.component.scss' ]
 } )
-export class LayoutComponent implements OnInit, OnDestroy {
+export class LayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild( 'drawer' ) drawer: MatDrawer;
   @ViewChild( 'emailContainer', { read: ViewContainerRef } )
     emailContainer: ViewContainerRef;
+  @ViewChild( SidebarComponent ) sidebarComponent : SidebarComponent;
   isDomReady: boolean;
   isLoading: boolean;
   headerSidenavLinks: Link[];
@@ -77,6 +79,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
           this.toolbarSidenavLinks = sidenavLinks;
         } );
       } );
+  }
+
+  ngAfterViewInit(): void {
+    this.drawer.closedStart.subscribe( () => this.sidebarComponent.closeSidenav() );
 
     setTimeout( () => {
       this.isDomReady = true;

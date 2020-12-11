@@ -64,8 +64,15 @@ export class PostService {
       .pipe( map( responseData => {
         console.log( responseData.message );
         this.pageData = { ...pageData, length: responseData.totalPosts, pageIndex: responseData.pageIndex };
-        return responseData.posts.map( ( postDb: any ) => {
-          return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
+        return responseData.posts.map( ( responseDataPost: any ) => {
+          const post: Post = {
+            id: responseDataPost._id,
+            title: responseDataPost.title,
+            content: responseDataPost.content,
+            imagePath: responseDataPost.imagePath,
+            userId: responseDataPost.userId
+          };
+          return post;
         } );  // Convert DB content to Post model
       } ) )
       .subscribe( ( posts: Post[] ) => {
@@ -80,8 +87,13 @@ export class PostService {
       .get<{ message: string, post: any }>( BACKEND_URL + id )
       .pipe( map( responseData => {
         console.log( responseData.message );
-        const postDb = responseData.post;
-        return new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath );
+        const post: Post = {
+          id: responseData.post._id,
+          title: responseData.post.title,
+          content: responseData.post.content,
+          imagePath: responseData.post.imagePath
+        };
+        return post;
       } ) )
       .subscribe( ( post: Post ) => {
         this.postListener.next( post );
@@ -107,8 +119,7 @@ export class PostService {
         this.pageData.pageIndex = lastPageIndex;
         */ // Not necessary update pageData because state.pagination
         /*
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
+        const post: Post = { title: responseData.post.title ...};
         this.posts.push( post );
         this.postListener.next( post );
         this.postsListener.next( [ ...this.posts ] );
@@ -120,7 +131,6 @@ export class PostService {
 
   updatePost( postData: Post, image?: Image ): void {
     const formData = new FormData(); // FormData object accept values and files
-    formData.append( 'id', postData.id );
     formData.append( 'title', postData.title );
     formData.append( 'content', postData.content );
     formData.append( 'imagePath', postData.imagePath );
@@ -133,13 +143,6 @@ export class PostService {
       .put<{ message: string, post: any }>( BACKEND_URL + postData.id, formData )
       .subscribe( responseData => {
         console.log( responseData.message );
-        /*
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
-        this.posts.push( post );
-        this.postListener.next( post );
-        this.postsListener.next( [ ...this.posts ] );
-        */ // Not necessary postUpdated because we are navigating to post-list
         this.emitPostSocket();
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }, error => this.postsListener.next( null ) ); // We can use PUT or PATCH methods
@@ -156,14 +159,6 @@ export class PostService {
         if ( this.pageData.pageIndex > lastPageIndex && lastPageIndex > 0 ) {
           this.pageData.pageIndex = lastPageIndex;
         }
-        /*
-        const postDb = responseData.post;
-        const post = new Post( postDb._id, postDb.title, postDb.content, postDb.imagePath, postDb.userId );
-        const postIndex: number = this.posts.findIndex( p => p.id !== postId );
-        const post = this.posts.splice( postIndex, 1 );
-        this.postUpdated.next( [ ...this.posts ] );
-        this.postListener.next( post );
-        */ // Not necessary postUpdated because we are navigating or calling getPost
         this.emitPostSocket();
         if ( pageData ) {
           this.getPosts( pageData );

@@ -67,7 +67,12 @@ export class SignComponent implements OnInit, OnDestroy {
     }
     form.control.disable();
     if ( this.mode === Mode.signUp ) {
-      const user: User = new User( null, form.value.firstName, form.value.lastName, form.value.email, null, form.value.password );
+      const user: User = {
+        firstName: form.value.firstName,
+        lastName: form.value.lastName,
+        email: form.value.email,
+        password: form.value.password
+      };
       this.authService.signUp( user );
     } else {
       const authData: AuthData = { email: form.value.email, password: form.value.password, remember: form.value.remember };

@@ -24,10 +24,7 @@ exports.createUser = ( req, res, next ) => {
       } ); // .hash method is provide by Bcrypt to encrypt password (10 characters)
       User.create( update )
         .then( user => {
-          res.status( 200 ).json( {
-            message: 'User created successfully',
-            user: user
-          } ); // user.save()
+          res.status( 200 ).json( { message: 'User created successfully' } );
         } )
         .catch( error => {
           res.status( 500 ).json( { message: 'User already exist!' } );
@@ -73,14 +70,16 @@ exports.updateUser = ( req, res, next ) => {
     lastName: req.body.lastName,
     imagePath: imagePath
   };
-  const conditions = { _id: req.body.id };
+  const conditions = { _id: req.params.id };
   User.findOneAndUpdate( conditions, update )
+    .select( 'firstName lastName imagePath' )
     .then( oldUser => {
       if ( !oldUser ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ previousDocument: oldUser } };
+      fileToDelete = oldUser.imagePath.split( '/' ).pop();
+      req.data = { ...req.data, ...{ fileToDelete } };
       const newUser = new User( oldUser ).set( update );
       res.status( 200 ).json( {
         message: 'User updated successful!',
@@ -107,6 +106,7 @@ exports.updateUserPassword = ( req, res, next ) => {
       const options = { new: true };
       // if true, return the modified document rather than the original
       User.findOneAndUpdate( conditions, update, options )
+        .select( 'password passwordLength' )
         .then( newUser => {
           if ( !newUser ) {
             res.status( 401 ).json( { message: 'Not authorized user!' } );
@@ -131,6 +131,7 @@ exports.validatePassword = ( req, res, next ) => {
   let fetchedUser;
   const conditions = { email: req.body.email };
   User.findOne( conditions )
+    .select( 'password' )
     .then( user => {
       if ( !user ) {
         return;
@@ -160,6 +161,7 @@ exports.validatePassword = ( req, res, next ) => {
 exports.getUser = ( req, res, next ) => {
   const conditions = req.params.id;
   User.findById( conditions )
+    .select( 'firstName lastName email imagePath passwordLength' )
     .then( user => {
       if ( !user ) {
         res.status( 404 ).json( { message: 'User not found!' } );
@@ -182,12 +184,14 @@ exports.getUser = ( req, res, next ) => {
 exports.deleteUser = ( req, res, next ) => {
   const conditions = { _id: req.params.id };
   User.findOneAndDelete( conditions )
+    .select( 'imagePath' )
     .then( oldUser => {
       if ( !oldUser ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ previousDocument: oldUser } };
+      fileToDelete = oldUser.imagePath.split( '/' ).pop();
+      req.data = { ...req.data, ...{ fileToDelete } };
       res.status( 200 ).json( { message: 'User deleted successful!' } );
     } ) // .deleteOne method is provided by Mongoose to its models
     .catch( error => {

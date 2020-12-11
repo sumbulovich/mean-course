@@ -6,7 +6,7 @@ mongoose.set( 'useFindAndModify', false );
 const types = mongoose.Schema.Types;
 const codeSchema = mongoose.Schema({
   userId: { type: types.ObjectId, ref: "User", required: true }, // Add a reference to the model
-  createdAt: { type: types.Date, expires: '2d', default: Date.now },
+  createdAt: { type: types.Date, expires: '1d', default: Date.now },
 });
 
 module.exports = mongoose.model( 'Code', codeSchema );

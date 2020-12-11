@@ -67,12 +67,14 @@ exports.updatePost = ( req, res, next ) => {
   };
   const conditions = { _id: req.params.id, userId: req.data.tokenPayload.userId };
   Post.findOneAndUpdate( conditions, update )
+    .select( 'title content imagePath' )
     .then( oldPost => {
       if ( !oldPost ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ previousDocument: oldPost } };
+      fileToDelete = oldPost.imagePath.split( '/' ).pop();
+      req.data = { ...req.data, ...{ fileToDelete } };
       const newPost = new Post( oldPost ).set( update );
       res.status( 200 ).json( {
          message: 'Post replaced successful!',
@@ -145,15 +147,16 @@ exports.getPost = ( req, res, next ) => {
 exports.deletePost = ( req, res, next ) => {
   const conditions = { _id: req.params.id,  userId: req.data.tokenPayload.userId };
   Post.findOneAndDelete( conditions )
+    .select( 'imagePath' )
     .then( oldPost => {
       if ( !oldPost ) {
         res.status( 401 ).json( { message: 'Not authorized user!' } );
         return;
       }
-      req.data = { ...req.data, ...{ previousDocument: oldPost } };
+      fileToDelete = oldPost.imagePath.split( '/' ).pop();
+      req.data = { ...req.data, ...{ fileToDelete } };
       res.status( 200 ).json( {
         message: 'Post deleted successful!',
-        post: oldPost
       } );
       next();
     } ) // .deleteOne method is provided by Mongoose to its models

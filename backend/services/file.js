@@ -42,10 +42,9 @@ exports.deleteFile = ( pathMap ) => {
   return ( req, res, next ) => {
     const isImageDeleted = !req.body.imagePath;
     const isImageReplaced = req.files && req.files.length;
-    if ( req.data.previousDocument.imagePath && ( isImageDeleted || isImageReplaced ) ) {
-      const filename = req.data.previousDocument.imagePath.split( '/' ).pop();
+    if ( req.data.fileToDelete && ( isImageDeleted || isImageReplaced ) ) {
       Object.values( pathMap ).forEach( path => {
-        fs.unlink( path + '/' + filename , error => {
+        fs.unlink( path + '/' + req.data.fileToDelete, error => {
           if ( error ) {
             return console.error( error.message );
           }

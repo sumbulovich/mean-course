@@ -27,7 +27,7 @@
     <mat-form-field appearance="outline" hideRequiredMarker>
       <mat-label>Password</mat-label>
       <input matInput [type]="isShowPassword[0] ? 'text' : 'password'" name="password" appResetField
-        ngModel #passwordInput="ngModel" minlength="8" maxlength="32" [pattern]="passwordPattern" required>
+        ngModel #passwordInput="ngModel" minlength="8" maxlength="32" [pattern]="passwordPattern" required autocomplete="on">
       <button mat-icon-button matSuffix type="button" (click)="isShowPassword[0] = !isShowPassword[0]"
         [attr.aria-label]="(isShowPassword[0] ? 'Hide' : 'Show') + 'password'" [attr.aria-pressed]="isShowPassword[0]">
         <mat-icon>{{isShowPassword[0] ? 'visibility' : 'visibility_off'}}</mat-icon>

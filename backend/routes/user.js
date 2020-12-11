@@ -22,12 +22,12 @@ router.post( '/signup', userController.createUser );
 router.post( '/signin', userController.validatePassword, userController.signUser );
 
 router.put(
-  '', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
+  '/:id', authService.checkToken, fileService.storeFile( FILE_PATH_MAP ),
   userController.updateUser, fileService.deleteFile( FILE_PATH_MAP ),
 );
 
 router.put(
-  '/password', authService.checkToken, userController.validatePassword,
+  '', authService.checkToken, userController.validatePassword,
   userController.updateUserPassword
 );
 // .put replace an element by a new one

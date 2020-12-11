@@ -1,5 +1,5 @@
 <mat-toolbar class="border-bottom shadow-sm h-auto py-2"
-  fxLayout fxLayoutAlign="space-between" *ngIf="isAuthenticated || !posts.length">
+  fxLayout fxLayoutAlign="space-between" *ngIf="isAuthenticated && posts.length">
   <div></div>
   <div>
     <button mat-mini-fab color="primary" [routerLink]="PATHS.POSTS.CREATE">

@@ -24,6 +24,15 @@ export class SidebarComponent implements OnInit {
       this.sidenav.toggle();
       return;
     }
+    this.closeSidenav();
     this.linkClicked.emit( sidenavLink );
+  }
+
+  closeSidenav() {
+    if ( this.sidenav.opened ) {
+      setTimeout( () => {
+        this.sidenav.close();
+      }, 500 );
+    }
   }
 }

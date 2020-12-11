@@ -60,7 +60,8 @@ export class ProfileComponent extends FormComponent implements OnInit, OnDestroy
           return;
         }
         this.user = user;
-        this.imagePreview = this.user.imagePath;
+        this.imagePreview = user.imagePath;
+        this.image = null;
         this.setMode( Mode.read );
         this.setForm( this.user );
       } );
@@ -108,7 +109,12 @@ export class ProfileComponent extends FormComponent implements OnInit, OnDestroy
   }
 
   onDeactivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if ( this.isSaved || !this.hasChanges( this.user, this.getCurrentUser() ) ) {
+    let hasChanges: boolean = this.form.dirty || !!this.image;
+    if ( !this.isSaved && this.user ) {
+      const user: User = this.getCurrentUser();
+      hasChanges = this.hasChanges( this.user, user );
+    }
+    if ( this.isSaved || !hasChanges ) {
       return true;
     }
     return this.triggerDiscardChangesDialog().afterClosed().pipe(

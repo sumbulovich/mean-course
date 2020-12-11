@@ -95,15 +95,19 @@ export class PostCreateComponent extends FormComponent implements OnInit, OnDest
         this.router.navigate( [ PATHS.POSTS.ROOT ] );
       }
     } else {
-      const post = new Post( null, this.form.value.title.trim(), this.form.value.content.trim() );
+      const post: Post = {
+        title: this.form.value.title.trim(),
+        content: this.form.value.content.trim(),
+      };
       this.postService.createPost( post, this.image );
     }
   }
 
   onDeactivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    let hasChanges: boolean = this.form.dirty;
+    let hasChanges: boolean = this.form.dirty || !!this.image;
     if ( !this.isSaved && this.post ) {
-      hasChanges = this.hasChanges( this.post, this.getCurrentPost() );
+      const post: Post = this.getCurrentPost();
+      hasChanges = this.hasChanges( this.post, post );
     }
     if ( this.isSaved || !hasChanges ) {
       return true;

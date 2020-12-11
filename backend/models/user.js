@@ -6,6 +6,10 @@ mongoose.set( 'useFindAndModify', false );
 // Fix Deprecation Warning on `findOneAndUpdate()` and `findOneAndDelete()` methods
 
 const types = mongoose.Schema.Types;
+const codeSchema = mongoose.Schema({
+  _id: { type: types.ObjectId, default: new mongoose.mongo.ObjectId() },
+  createdAt: { type: types.Date, default: Date.now },
+});
 const userSchema = mongoose.Schema( {
   firstName: { type: types.String, required: true },
   lastName: { type: types.String, required: true },
@@ -13,7 +17,8 @@ const userSchema = mongoose.Schema( {
   password: { type: types.String, required: true },
   passwordLength: { type: types.Number, require: true },
   imagePath: types.String,
-  createdAt: { type: types.Date, default: Date.now }
+  createdAt: { type: types.Date, default: Date.now },
+  codes: [ codeSchema ]
 } );
 
 userSchema.plugin( uniqueValidator ); // .plugin method is Provided by Mongoose to add extra functionalities to a schema
